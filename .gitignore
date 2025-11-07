@@ -1,1 +1,5 @@
 .env
+helpers/
+custom/__pycache__
+custom/*.pyc
+cogs/__pycache__
