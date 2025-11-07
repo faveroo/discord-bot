@@ -69,7 +69,20 @@ async def piada(ctx):
 async def traduzir(ctx, *, texto):
     t = GoogleTranslator(source='auto', target='pt').translate(texto)
     await ctx.send(f"📘 Tradução: {t}")
+    
+@bot.command()
+async def gato(ctx):
+    async with httpx.AsyncClient() as client:
+        response = await client.get("https://api.thecatapi.com/v1/images/search")
+        data = response.json()
+        url = data['url']
+        
+    embed = discord.Embed(title="Image De Gato", description="", color=discord.Color.blue())
+    
+    embed.add_field(name="Nome", value=ctx.guild.name, inline=False)
+    embed.set_image(url=url)
 
+    await ctx.send(embed=embed)
 # ------------------------------------------------
 # Comando !capital
 # ------------------------------------------------
@@ -95,5 +108,29 @@ async def capital(ctx):
     except asyncio.TimeoutError:
         await ctx.send(f"⏳ Tempo esgotado! A capital de {country} é `{capital}`.")
 
+# ------------------------------------------------
+# Grupo Ver
+# ------------------------------------------------
+@bot.group()
+async def ver(ctx):
+    """Comando para ver coisas interessantes"""
+    if ctx.invoked_subcommand is None:
+        await ctx.send("Subcomando válidos: capital | moeda")
+
+@ver.command()
+async def capital(ctx, *, pais: str):
+    """Mostra a capital de um país"""
+    with open('json/capitals.json') as f:
+        data = json.load(f)
+    
+    pais = pais.strip()
+    capital = data.get(pais)
+    
+    if capital and capital != "Sem capital":
+        await ctx.send(f"🌍 A capital de {pais} é {capital}")
+    elif capital == "Sem capital":
+        await ctx.send(f"🙁 {pais} não possuí capital")
+    else:
+        await ctx.send(f"❌ País não encontrado")
 # ------------------------------------------------
 bot.run(token)

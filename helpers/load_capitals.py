@@ -9,7 +9,7 @@ def load_capitals(file_path='json/capitals.json'):
         countries = response.json()
 
     capitals = {
-        c['name']['common']: (c['capital'][0] if 'capital' in c and c['capital'] else "Sem capital")
+        c['name']['common']: (c['capital'][0] if c.get('capital') else "Sem capital")
         for c in countries
 }
 
