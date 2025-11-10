@@ -1,0 +1,994 @@
+{
+    "Síria": {
+        "capital": "Damasco",
+        "moeda": "Libra síria"
+    },
+    "Nova Zelândia": {
+        "capital": "Wellington",
+        "moeda": "Dólar da Nova Zelândia"
+    },
+    "Brunei": {
+        "capital": "Bandar Seri Begawan",
+        "moeda": "Dólar de Brunei"
+    },
+    "Território Britânico do Oceano Índico": {
+        "capital": "Diego Garcia",
+        "moeda": "Dólar dos Estados Unidos"
+    },
+    "Quênia": {
+        "capital": "Nairóbi",
+        "moeda": "Xelim queniano"
+    },
+    "Palau": {
+        "capital": "Ngerulmud",
+        "moeda": "Dólar dos Estados Unidos"
+    },
+    "Omã": {
+        "capital": "Mascate",
+        "moeda": "Rial de Omã"
+    },
+    "México": {
+        "capital": "Cidade do México",
+        "moeda": "Peso mexicano"
+    },
+    "Palestina": {
+        "capital": "Ramalá",
+        "moeda": "Libra egípcia"
+    },
+    "Ilhas Turcas e Caicos": {
+        "capital": "Cidade de Cockburn",
+        "moeda": "Dólar dos Estados Unidos"
+    },
+    "República Centro-Africana": {
+        "capital": "Bangui",
+        "moeda": "Franco CFA da África Central"
+    },
+    "São Cristóvão e Nevis": {
+        "capital": "Basseterre",
+        "moeda": "Dólar do Caribe Oriental"
+    },
+    "Sudão do Sul": {
+        "capital": "Já",
+        "moeda": "Libra sul-sudanesa"
+    },
+    "Ucrânia": {
+        "capital": "Kyiv",
+        "moeda": "Hryvnia ucraniana"
+    },
+    "São Bartolomeu": {
+        "capital": "Gustávia",
+        "moeda": "Euro"
+    },
+    "Holanda": {
+        "capital": "Amsterdã",
+        "moeda": "Euro"
+    },
+    "Tanzânia": {
+        "capital": "Dodoma",
+        "moeda": "Xelim da Tanzânia"
+    },
+    "Tcheca": {
+        "capital": "Praga",
+        "moeda": "Coroa Checa"
+    },
+    "Bielorrússia": {
+        "capital": "Minsk",
+        "moeda": "Rublo bielorrusso"
+    },
+    "Iémen": {
+        "capital": "Ocupação",
+        "moeda": "Rial iemenita"
+    },
+    "Eslovênia": {
+        "capital": "Liubliana",
+        "moeda": "Euro"
+    },
+    "Toquelau": {
+        "capital": "Incrível",
+        "moeda": "Dólar da Nova Zelândia"
+    },
+    "Nigéria": {
+        "capital": "Abuja",
+        "moeda": "naira nigeriana"
+    },
+    "Reunião": {
+        "capital": "Saint Denis",
+        "moeda": "Euro"
+    },
+    "Guadalupe": {
+        "capital": "Basse-Terre",
+        "moeda": "Euro"
+    },
+    "Hungria": {
+        "capital": "Budapeste",
+        "moeda": "Forint húngaro"
+    },
+    "Ilha Heard e Ilhas McDonald": {
+        "capital": "Sem capital",
+        "moeda": "Sem moeda"
+    },
+    "Essuatíni": {
+        "capital": "Mbabane",
+        "moeda": "Suazi ao sol"
+    },
+    "Comores": {
+        "capital": "Morôni",
+        "moeda": "Frank Comoran"
+    },
+    "Índia": {
+        "capital": "Nova Deli",
+        "moeda": "Rupia indiana"
+    },
+    "Ilhas Cocos (Keeling)": {
+        "capital": "Ilha Oeste",
+        "moeda": "dólar australiano"
+    },
+    "Reino Unido": {
+        "capital": "Londres",
+        "moeda": "Libra britânica"
+    },
+    "Angola": {
+        "capital": "Luanda",
+        "moeda": "Angolano primeiro"
+    },
+    "Macau": {
+        "capital": "Sem capital",
+        "moeda": "Pataca macaense"
+    },
+    "Costa Rica": {
+        "capital": "São José",
+        "moeda": "Colón da Costa Rica"
+    },
+    "Niue": {
+        "capital": "Amor",
+        "moeda": "Dólar da Nova Zelândia"
+    },
+    "Ilhas Cook": {
+        "capital": "Avarua",
+        "moeda": "Dólar das Ilhas Cook"
+    },
+    "Djibuti": {
+        "capital": "Djibuti",
+        "moeda": "Franco do Jibuti"
+    },
+    "São Pedro e Miquelon": {
+        "capital": "São Pedro",
+        "moeda": "Euro"
+    },
+    "Áustria": {
+        "capital": "Viena",
+        "moeda": "Euro"
+    },
+    "Indonésia": {
+        "capital": "Jacarta",
+        "moeda": "Rupia indonésia"
+    },
+    "Nauru": {
+        "capital": "A linguagem",
+        "moeda": "dólar australiano"
+    },
+    "Cazaquistão": {
+        "capital": "Astana",
+        "moeda": "Tenge do Cazaquistão"
+    },
+    "Maláui": {
+        "capital": "Lilongwe",
+        "moeda": "Manhã do Malawi"
+    },
+    "Eritreia": {
+        "capital": "Asmara",
+        "moeda": "Nakfa da Eritreia"
+    },
+    "Tunísia": {
+        "capital": "Tunes",
+        "moeda": "Dinar tunisino"
+    },
+    "Ilhas Pitcairn": {
+        "capital": "Adamstown",
+        "moeda": "Dólar da Nova Zelândia"
+    },
+    "Arábia Saudita": {
+        "capital": "Riade",
+        "moeda": "Rial saudita"
+    },
+    "Turcomenistão": {
+        "capital": "Asgabate",
+        "moeda": "Manat do Turquemenistão"
+    },
+    "Saara Ocidental": {
+        "capital": "El Aiune",
+        "moeda": "Dinar argelino"
+    },
+    "Gana": {
+        "capital": "Acra",
+        "moeda": "cedi ganense"
+    },
+    "Tuvalu": {
+        "capital": "Lutar",
+        "moeda": "dólar australiano"
+    },
+    "Mianmar": {
+        "capital": "Naypyidaw",
+        "moeda": "Kyat birmanês"
+    },
+    "Gabão": {
+        "capital": "Libreville",
+        "moeda": "Franco CFA da África Central"
+    },
+    "Cuba": {
+        "capital": "Havana",
+        "moeda": "Peso conversível cubano"
+    },
+    "China": {
+        "capital": "Pequim",
+        "moeda": "Yuan chinês"
+    },
+    "Panamá": {
+        "capital": "Cidade do Panamá",
+        "moeda": "Balboa panamenha"
+    },
+    "Tailândia": {
+        "capital": "Bangkok",
+        "moeda": "Baht tailandês"
+    },
+    "Rússia": {
+        "capital": "Moscou",
+        "moeda": "rublo russo"
+    },
+    "Bósnia e Herzegovina": {
+        "capital": "Sarajevo",
+        "moeda": "Marca conversível da Bósnia e Herzegovina"
+    },
+    "Catar": {
+        "capital": "Doha",
+        "moeda": "Rial do Catar"
+    },
+    "Ilha Bouvet": {
+        "capital": "Sem capital",
+        "moeda": "Sem moeda"
+    },
+    "Iraque": {
+        "capital": "Bagdá",
+        "moeda": "Dinar iraquiano"
+    },
+    "Tadjiquistão": {
+        "capital": "Segunda-feira",
+        "moeda": "Somoni do Tadjiquistão"
+    },
+    "Guiana": {
+        "capital": "Georgetown",
+        "moeda": "Dólar guianense"
+    },
+    "Ilhas Salomão": {
+        "capital": "Honiara",
+        "moeda": "Dólar das Ilhas Salomão"
+    },
+    "Eslováquia": {
+        "capital": "Bratislava",
+        "moeda": "Euro"
+    },
+    "Gibraltar": {
+        "capital": "Gibraltar",
+        "moeda": "Libra de Gibraltar"
+    },
+    "Peru": {
+        "capital": "Ancara",
+        "moeda": "Lira turca"
+    },
+    "Porto Rico": {
+        "capital": "São João",
+        "moeda": "Dólar dos Estados Unidos"
+    },
+    "Armênia": {
+        "capital": "Erevan",
+        "moeda": "Dram armênio"
+    },
+    "Azerbaijão": {
+        "capital": "Bacu",
+        "moeda": "Manat do Azerbaijão"
+    },
+    "Mauritânia": {
+        "capital": "Nouakchote",
+        "moeda": "ouguiya mauritana"
+    },
+    "Belize": {
+        "capital": "Belmopán",
+        "moeda": "Dólar belizenho"
+    },
+    "Anguila": {
+        "capital": "O Vale",
+        "moeda": "Dólar do Caribe Oriental"
+    },
+    "Seicheles": {
+        "capital": "Vitória",
+        "moeda": "Rupia seichelense"
+    },
+    "Ilha Norfolk": {
+        "capital": "Kingston",
+        "moeda": "dólar australiano"
+    },
+    "Filipinas": {
+        "capital": "Manila",
+        "moeda": "Peso filipino"
+    },
+    "Argentina": {
+        "capital": "Buenos Aires",
+        "moeda": "Peso argentino"
+    },
+    "Moldávia": {
+        "capital": "Kishinev",
+        "moeda": "Leu da Moldávia"
+    },
+    "Samoa": {
+        "capital": "Ápia",
+        "moeda": "Dólar de Samoa"
+    },
+    "Antártica": {
+        "capital": "Sem capital",
+        "moeda": "Sem moeda"
+    },
+    "Serra Leoa": {
+        "capital": "Cidade Livre",
+        "moeda": "Leão"
+    },
+    "Camboja": {
+        "capital": "Phnom Penh",
+        "moeda": "Riel cambojano"
+    },
+    "Vanuatu": {
+        "capital": "Porto Vila",
+        "moeda": "Vanuatu"
+    },
+    "Jordânia": {
+        "capital": "Amã",
+        "moeda": "Dinar jordaniano"
+    },
+    "Martinica": {
+        "capital": "Forte de França",
+        "moeda": "Euro"
+    },
+    "Tonga": {
+        "capital": "Nuku'alofa",
+        "moeda": "Influência tonganesa"
+    },
+    "Ilhas Virgens Britânicas": {
+        "capital": "Cidade Rodoviária",
+        "moeda": "Dólar dos Estados Unidos"
+    },
+    "Timor-Leste": {
+        "capital": "não",
+        "moeda": "Dólar dos Estados Unidos"
+    },
+    "Polinésia Francesa": {
+        "capital": "em Papete",
+        "moeda": "Franco CFP"
+    },
+    "Guernsey": {
+        "capital": "Porto de São Pedro",
+        "moeda": "Libra britânica"
+    },
+    "Senegal": {
+        "capital": "Dacar",
+        "moeda": "Franco CFA da África Ocidental"
+    },
+    "Guatemala": {
+        "capital": "Cidade da Guatemala",
+        "moeda": "Quetzal guatemalteco"
+    },
+    "Polônia": {
+        "capital": "Varsóvia",
+        "moeda": "Zlóti polonês"
+    },
+    "Bahamas": {
+        "capital": "Nassau",
+        "moeda": "Dólar das Bahamas"
+    },
+    "Ilhas Faroé": {
+        "capital": "Tórshavn",
+        "moeda": "coroa dinamarquesa"
+    },
+    "Aruba": {
+        "capital": "Oranjestad",
+        "moeda": "Florim de Aruba"
+    },
+    "República Dominicana": {
+        "capital": "São Domingos",
+        "moeda": "Peso dominicano"
+    },
+    "Hong Kong": {
+        "capital": "Cidade de Vitória",
+        "moeda": "Dólar de Hong Kong"
+    },
+    "São Tomé and Príncipe": {
+        "capital": "São Tomé",
+        "moeda": "São Tomé and Príncipe dobra"
+    },
+    "Uruguai": {
+        "capital": "Montevidéu",
+        "moeda": "Peso uruguaio"
+    },
+    "Bermudas": {
+        "capital": "Hamilton",
+        "moeda": "Dólar das Bermudas"
+    },
+    "Wallis e Futuna": {
+        "capital": "Tela de pagamento",
+        "moeda": "Franco CFP"
+    },
+    "África do Sul": {
+        "capital": "Pretória",
+        "moeda": "Rand sul-africano"
+    },
+    "Israel": {
+        "capital": "Jerusalém",
+        "moeda": "Novo shekel israelense"
+    },
+    "São Marino": {
+        "capital": "Cidade de São Marino",
+        "moeda": "Euro"
+    },
+    "El Salvador": {
+        "capital": "São Salvador",
+        "moeda": "Dólar dos Estados Unidos"
+    },
+    "Mongólia": {
+        "capital": "Chuva Bator",
+        "moeda": "Tögrög da Mongólia"
+    },
+    "Samoa Americana": {
+        "capital": "Pagamento Pagamento",
+        "moeda": "Dólar dos Estados Unidos"
+    },
+    "Terras Austrais e Antárticas Francesas": {
+        "capital": "Porto francês",
+        "moeda": "Euro"
+    },
+    "Zimbábue": {
+        "capital": "Harare",
+        "moeda": "Dólar do Zimbábue"
+    },
+    "Ilhas Malvinas": {
+        "capital": "Stanley",
+        "moeda": "Libra das Ilhas Malvinas"
+    },
+    "Croácia": {
+        "capital": "Zagrebe",
+        "moeda": "Euro"
+    },
+    "Quiribáti": {
+        "capital": "Tarawa do Sul",
+        "moeda": "dólar australiano"
+    },
+    "Ilhas Marshall": {
+        "capital": "Majuro",
+        "moeda": "Dólar dos Estados Unidos"
+    },
+    "Noruega": {
+        "capital": "Oslo",
+        "moeda": "coroa norueguesa"
+    },
+    "Mali": {
+        "capital": "Bamaco",
+        "moeda": "Franco CFA da África Ocidental"
+    },
+    "Zâmbia": {
+        "capital": "Sábado",
+        "moeda": "Manhã da Zâmbia"
+    },
+    "Maldivas": {
+        "capital": "Pequeno",
+        "moeda": "Rufiyaa das Maldivas"
+    },
+    "Antígua e Barbuda": {
+        "capital": "São João",
+        "moeda": "Dólar do Caribe Oriental"
+    },
+    "Ilha Natal": {
+        "capital": "Enseada dos Peixes Voadores",
+        "moeda": "dólar australiano"
+    },
+    "Irã": {
+        "capital": "Teerã",
+        "moeda": "Rial iraniano"
+    },
+    "Itália": {
+        "capital": "Roma",
+        "moeda": "Euro"
+    },
+    "Gâmbia": {
+        "capital": "Banjul",
+        "moeda": "dalasi"
+    },
+    "Coréia do Sul": {
+        "capital": "Seul",
+        "moeda": "Won sul-coreano"
+    },
+    "Papua Nova Guiné": {
+        "capital": "Porto Moresby",
+        "moeda": "Kina da Papua Nova Guiné"
+    },
+    "Egito": {
+        "capital": "Cairo",
+        "moeda": "Libra egípcia"
+    },
+    "Ilha de Man": {
+        "capital": "Douglas",
+        "moeda": "Libra britânica"
+    },
+    "Letónia": {
+        "capital": "Riga",
+        "moeda": "Euro"
+    },
+    "Paraguai": {
+        "capital": "Suposição",
+        "moeda": "Guarani paraguaio"
+    },
+    "Granada": {
+        "capital": "São Jorge",
+        "moeda": "Dólar do Caribe Oriental"
+    },
+    "Colômbia": {
+        "capital": "Bogotá",
+        "moeda": "Peso colombiano"
+    },
+    "Finlândia": {
+        "capital": "Helsínquia",
+        "moeda": "Euro"
+    },
+    "Bulgária": {
+        "capital": "Sófia",
+        "moeda": "Lev búlgaro"
+    },
+    "Ir": {
+        "capital": "Lomé",
+        "moeda": "Franco CFA da África Ocidental"
+    },
+    "Chile": {
+        "capital": "Santiago",
+        "moeda": "Peso chileno"
+    },
+    "Domínica": {
+        "capital": "junco",
+        "moeda": "Dólar do Caribe Oriental"
+    },
+    "Irlanda": {
+        "capital": "Dublin",
+        "moeda": "Euro"
+    },
+    "Botsuana": {
+        "capital": "Gaborone",
+        "moeda": "Chuva no Botsuana"
+    },
+    "Kosovo": {
+        "capital": "Pristina",
+        "moeda": "Euro"
+    },
+    "Estados Unidos": {
+        "capital": "Washington, DC",
+        "moeda": "Dólar dos Estados Unidos"
+    },
+    "Uzbequistão": {
+        "capital": "Tashkent",
+        "moeda": "Soum uzbeque"
+    },
+    "Brasil": {
+        "capital": "Brasília",
+        "moeda": "real brasileiro"
+    },
+    "Ruanda": {
+        "capital": "Quigali",
+        "moeda": "Francófono ruandês"
+    },
+    "Liechtenstein": {
+        "capital": "Vaduz",
+        "moeda": "Franco suíço"
+    },
+    "Butão": {
+        "capital": "Thimbu",
+        "moeda": "Elementar cultivado"
+    },
+    "Montenegro": {
+        "capital": "Podgorica",
+        "moeda": "Euro"
+    },
+    "Níger": {
+        "capital": "Niamey",
+        "moeda": "Franco CFA da África Ocidental"
+    },
+    "Albânia": {
+        "capital": "Tirana",
+        "moeda": "lek albanês"
+    },
+    "Marrocos": {
+        "capital": "Rabate",
+        "moeda": "Dirham marroquino"
+    },
+    "Venezuela": {
+        "capital": "Caracas",
+        "moeda": "Bolívar soberano venezuelano"
+    },
+    "República do Congo": {
+        "capital": "Brazavile",
+        "moeda": "Franco CFA da África Central"
+    },
+    "Burundi": {
+        "capital": "Espere",
+        "moeda": "Franco do Burundi"
+    },
+    "Jersey": {
+        "capital": "Santo Helier",
+        "moeda": "Libra britânica"
+    },
+    "Macedônia do Norte": {
+        "capital": "Escópia",
+        "moeda": "dinheiro"
+    },
+    "Quirguistão": {
+        "capital": "Bisqueque",
+        "moeda": "Eu sou Quirguistão"
+    },
+    "Romênia": {
+        "capital": "Bucareste",
+        "moeda": "leu romeno"
+    },
+    "Guam": {
+        "capital": "lesma",
+        "moeda": "Dólar dos Estados Unidos"
+    },
+    "Ilhas Alanda": {
+        "capital": "Mariehamn",
+        "moeda": "Euro"
+    },
+    "Guiné Equatorial": {
+        "capital": "Embaçado",
+        "moeda": "Franco CFA da África Central"
+    },
+    "Geórgia do Sul": {
+        "capital": "Ponto Rei Eduardo",
+        "moeda": "Libra britânica"
+    },
+    "Guiana Francesa": {
+        "capital": "Caiena",
+        "moeda": "Euro"
+    },
+    "Alemanha": {
+        "capital": "Berlim",
+        "moeda": "Euro"
+    },
+    "Dinamarca": {
+        "capital": "Copenhague",
+        "moeda": "coroa dinamarquesa"
+    },
+    "Islândia": {
+        "capital": "Reykjavík",
+        "moeda": "Coroa islandesa"
+    },
+    "Somália": {
+        "capital": "Mogadíscio",
+        "moeda": "Xelim somali"
+    },
+    "Micronésia": {
+        "capital": "deixar",
+        "moeda": "Dólar dos Estados Unidos"
+    },
+    "Laos": {
+        "capital": "Vienciana",
+        "moeda": "kip do Laos"
+    },
+    "São Martinho": {
+        "capital": "Marigot",
+        "moeda": "Euro"
+    },
+    "Libéria": {
+        "capital": "Monróvia",
+        "moeda": "Dólar liberiano"
+    },
+    "Chade": {
+        "capital": "N'Djamena",
+        "moeda": "Franco CFA da África Central"
+    },
+    "Austrália": {
+        "capital": "Canberra",
+        "moeda": "dólar australiano"
+    },
+    "Burkina Faso": {
+        "capital": "Ouagadougou",
+        "moeda": "Franco CFA da África Ocidental"
+    },
+    "Malta": {
+        "capital": "Valeta",
+        "moeda": "Euro"
+    },
+    "Ilhas Marianas do Norte": {
+        "capital": "Saipan",
+        "moeda": "Dólar dos Estados Unidos"
+    },
+    "Uganda": {
+        "capital": "Campala",
+        "moeda": "Xelim ugandês"
+    },
+    "Espanha": {
+        "capital": "Madri",
+        "moeda": "Euro"
+    },
+    "Sudão": {
+        "capital": "Cartum",
+        "moeda": "Libra sudanesa"
+    },
+    "Taiwan": {
+        "capital": "Taipei",
+        "moeda": "Novo dólar taiwanês"
+    },
+    "Afeganistão": {
+        "capital": "Cabul",
+        "moeda": "afegão afegão"
+    },
+    "Svalbard e Jan Mayen": {
+        "capital": "Longyearbyen",
+        "moeda": "coroa"
+    },
+    "Fiji": {
+        "capital": "Suva",
+        "moeda": "Dólar fijiano"
+    },
+    "Guiné-Bissau": {
+        "capital": "Bissau",
+        "moeda": "Franco CFA da África Ocidental"
+    },
+    "Andorra": {
+        "capital": "Andorra a Velha",
+        "moeda": "Euro"
+    },
+    "Argélia": {
+        "capital": "Argel",
+        "moeda": "Dinar argelino"
+    },
+    "Portugal": {
+        "capital": "Lisboa",
+        "moeda": "Euro"
+    },
+    "Moçambique": {
+        "capital": "Maputo",
+        "moeda": "Metical moçambicano"
+    },
+    "Lesoto": {
+        "capital": "Maseru",
+        "moeda": "Lesoto lembre-se"
+    },
+    "Coréia do Norte": {
+        "capital": "Pyongyang",
+        "moeda": "Won norte-coreano"
+    },
+    "Cingapura": {
+        "capital": "Cingapura",
+        "moeda": "Dólar de Singapura"
+    },
+    "Mônaco": {
+        "capital": "Mônaco",
+        "moeda": "Euro"
+    },
+    "Líbano": {
+        "capital": "Beirute",
+        "moeda": "Libra libanesa"
+    },
+    "Sérvia": {
+        "capital": "Belgrado",
+        "moeda": "Dinar sérvio"
+    },
+    "Estônia": {
+        "capital": "Tallin",
+        "moeda": "Euro"
+    },
+    "Barbados": {
+        "capital": "Bridgetown",
+        "moeda": "Dólar de Barbados"
+    },
+    "Maurício": {
+        "capital": "Porto Luís",
+        "moeda": "Rupia mauriciana"
+    },
+    "Santa Helena, Ascensão e Tristão da Cunha": {
+        "capital": "Jamestown",
+        "moeda": "Libra esterlina"
+    },
+    "Bélgica": {
+        "capital": "Bruxelas",
+        "moeda": "Euro"
+    },
+    "Líbia": {
+        "capital": "Trípoli",
+        "moeda": "Dinar líbio"
+    },
+    "Nicarágua": {
+        "capital": "Manágua",
+        "moeda": "Córdoba da Nicarágua"
+    },
+    "Kuwait": {
+        "capital": "Cidade do Kuwait",
+        "moeda": "Dinar do Kuwait"
+    },
+    "Nova Caledônia": {
+        "capital": "Nouméa",
+        "moeda": "Franco CFP"
+    },
+    "França": {
+        "capital": "Paris",
+        "moeda": "Euro"
+    },
+    "Vietnã": {
+        "capital": "Hanói",
+        "moeda": "Dong vietnamita"
+    },
+    "São Vicente e Granadinas": {
+        "capital": "Kingstown",
+        "moeda": "Dólar do Caribe Oriental"
+    },
+    "Bahrein": {
+        "capital": "Manama",
+        "moeda": "Dinar do Bahrein"
+    },
+    "Curaçau": {
+        "capital": "Willemstad",
+        "moeda": "Florim das Antilhas Holandesas"
+    },
+    "Bangladesh": {
+        "capital": "Daca",
+        "moeda": "Pé de Bangladesh"
+    },
+    "Costa do Marfim": {
+        "capital": "Yamoussoukro",
+        "moeda": "Franco CFA da África Ocidental"
+    },
+    "RD Congo": {
+        "capital": "Kinshasa",
+        "moeda": "Francês Congolês"
+    },
+    "Sri Lanka": {
+        "capital": "Sri Jayawardenepura Kotte",
+        "moeda": "Rupia do Sri Lanka"
+    },
+    "Ilhas Menores Distantes dos Estados Unidos": {
+        "capital": "Washington DC",
+        "moeda": "Dólar dos Estados Unidos"
+    },
+    "Holanda caribenha": {
+        "capital": "Kralendijk",
+        "moeda": "Dólar dos Estados Unidos"
+    },
+    "Nepal": {
+        "capital": "Catmandu",
+        "moeda": "Rupia nepalesa"
+    },
+    "Bolívia": {
+        "capital": "Sucre",
+        "moeda": "boliviano boliviano"
+    },
+    "Namíbia": {
+        "capital": "Windhoek",
+        "moeda": "Dólar namibiano"
+    },
+    "Haiti": {
+        "capital": "Porto Príncipe",
+        "moeda": "Gourde haitiano"
+    },
+    "Suriname": {
+        "capital": "Paramaribo",
+        "moeda": "Dólar do Suriname"
+    },
+    "Canadá": {
+        "capital": "Otava",
+        "moeda": "Dólar canadense"
+    },
+    "Honduras": {
+        "capital": "Tegucigalpa",
+        "moeda": "Lempira hondurenha"
+    },
+    "Cidade do Vaticano": {
+        "capital": "Cidade do Vaticano",
+        "moeda": "Euro"
+    },
+    "Emirados Árabes Unidos": {
+        "capital": "Abu Dabi",
+        "moeda": "Dirham dos Emirados Árabes Unidos"
+    },
+    "Guiné": {
+        "capital": "Conacri",
+        "moeda": "Franco guineense"
+    },
+    "Camarões": {
+        "capital": "Yaoundé",
+        "moeda": "Franco CFA da África Central"
+    },
+    "Chipre": {
+        "capital": "Nicósia",
+        "moeda": "Euro"
+    },
+    "Trinidad e Tobago": {
+        "capital": "Porto de Espanha",
+        "moeda": "Dólar de Trinidad e Tobago"
+    },
+    "Suécia": {
+        "capital": "Estocolmo",
+        "moeda": "coroa sueca"
+    },
+    "Madagáscar": {
+        "capital": "Antananarivo",
+        "moeda": "Ariary malgaxe"
+    },
+    "Maiote": {
+        "capital": "Mamoudzou",
+        "moeda": "Euro"
+    },
+    "Ilhas Cayman": {
+        "capital": "Cidade de George",
+        "moeda": "Dólar das Ilhas Cayman"
+    },
+    "Malásia": {
+        "capital": "Kuala Lumpur",
+        "moeda": "Ringgit malaio"
+    },
+    "Benim": {
+        "capital": "Porto-Novo",
+        "moeda": "Franco CFA da África Ocidental"
+    },
+    "Groenlândia": {
+        "capital": "Nuuk",
+        "moeda": "coroa"
+    },
+    "Suíça": {
+        "capital": "Berna",
+        "moeda": "Franco suíço"
+    },
+    "Geórgia": {
+        "capital": "Tbilissi",
+        "moeda": "correr"
+    },
+    "Equador": {
+        "capital": "Quito",
+        "moeda": "Dólar dos Estados Unidos"
+    },
+    "Cape Verde": {
+        "capital": "Praia",
+        "moeda": "Cape Verdean escudo"
+    },
+    "Luxemburgo": {
+        "capital": "Luxemburgo",
+        "moeda": "Euro"
+    },
+    "Santa Lúcia": {
+        "capital": "Castries",
+        "moeda": "Dólar do Caribe Oriental"
+    },
+    "Ilhas Virgens dos Estados Unidos": {
+        "capital": "Charlotte Amália",
+        "moeda": "Dólar dos Estados Unidos"
+    },
+    "Japão": {
+        "capital": "Tóquio",
+        "moeda": "Iene japonês"
+    },
+    "Jamaica": {
+        "capital": "Kingston",
+        "moeda": "dólar jamaicano"
+    },
+    "Etiópia": {
+        "capital": "Adis Abeba",
+        "moeda": "Birr etíope"
+    },
+    "Paquistão": {
+        "capital": "Islamabade",
+        "moeda": "Rupia Paquistanesa"
+    },
+    "Montserrate": {
+        "capital": "Plymouth",
+        "moeda": "Dólar do Caribe Oriental"
+    },
+    "Lituânia": {
+        "capital": "Vilnius",
+        "moeda": "Euro"
+    },
+    "Grécia": {
+        "capital": "Atenas",
+        "moeda": "Euro"
+    }
+}

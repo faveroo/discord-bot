@@ -13,17 +13,19 @@ token = os.getenv("TOKEN")
 COGS = [
     'cogs.geral',
     'cogs.fun',
-    'cogs.traducao',
     'cogs.utilidades'
 ]
 
 intents = discord.Intents.default()
 intents.message_content = True
 
+help_cmd = CustomHelp()
+help_cmd.aliases = ['ajuda']
+
 bot = commands.Bot(
     command_prefix="!",
     intents=intents,
-    help_command=CustomHelp()  # ✅ ativa o help customizado
+    help_command=help_cmd  # ✅ ativa o help customizado com alias
 )
 
 # ------------------------------------------------
@@ -34,9 +36,12 @@ async def on_ready():
     await bot.change_presence(
         activity=discord.Activity(
             type=discord.ActivityType.playing,
-            name="Explorando o Mainframe"
+            name="Explorando o Universo"
         )
     )
+
+    if "ajuda" not in [cmd.name for cmd in bot.commands]:
+        bot.all_commands["ajuda"] = bot.all_commands["help"]
 
     # Carrega os cogs
     print("\n🔄 Iniciando carregamento dos cogs...")
@@ -69,6 +74,8 @@ async def on_ready():
 @bot.tree.command(name="ping", description="Responde com Pong!")
 async def ping(interaction: discord.Interaction):
     await interaction.response.send_message("🏓 Pong!")
+
+
 
 # ------------------------------------------------
 # Inicia o bot

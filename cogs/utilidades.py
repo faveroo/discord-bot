@@ -2,8 +2,12 @@ import json
 import random
 import asyncio
 import httpx
+import os
+from helpers.piadas import piadas
+from helpers.piadas2 import piadas2
 from deep_translator import GoogleTranslator
 from discord.ext import commands
+from dotenv import load_dotenv
 
 class Utilidades(commands.Cog, name="Utilidades"):
     """Comandos úteis e informativos"""
@@ -12,12 +16,24 @@ class Utilidades(commands.Cog, name="Utilidades"):
         self.bot = bot
         print(f"✅ Cog Utilidades inicializado com os comandos: {[c.name for c in self.get_commands()]}")
 
-    @commands.command(help="Conta uma piada aleatória", aliases=["joke", "jokes", "piadas"])
+    @commands.command(help="Conta uma piada aleatória 🇧🇷", aliases=["joke", "piadas"])
     async def piada(self, ctx):
-        async with httpx.AsyncClient() as client:
-            response = await client.get("https://official-joke-api.appspot.com/random_joke")
-            joke = response.json()
-        await ctx.send(f"{joke['setup']} ... {joke['punchline']}")
+        piada = random.choice(piadas)
+        print(piada)
+        await ctx.send(f"😂 {piada}")
+
+    @commands.command(help="piadas v2", aliases=["joke2", "piadas2"])
+    async def piada2(self, ctx):
+        piada_obj = random.choice(piadas2)
+        pergunta = piada_obj['pergunta']
+        resposta = piada_obj['resposta']
+
+        await ctx.send(f"😂 {pergunta}\n -{resposta}")
+
+    @commands.command(help="Traduz texto automaticamente para português", aliases=["translate", "tr"])
+    async def traduzir(self, ctx, *, texto):
+        t = GoogleTranslator(source='auto', target='pt').translate(texto)
+        await ctx.send(f"📘 Tradução: {t}")
 
     @commands.command(help="Te dá um conselho", aliases=["advice", "tip"])
     async def conselho(self, ctx):
@@ -30,7 +46,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
 
     @commands.command(help="Jogo de adivinhar a capital", aliases=["capitals"])
     async def capital(self, ctx):
-        with open('json/capitals.json', 'r', encoding='utf-8') as f:
+        with open('json/capitais.json', 'r', encoding='utf-8') as f:
             capitals = json.load(f)
 
         country = random.choice(list(capitals.keys()))
@@ -59,7 +75,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
     @ver.command(help="Mostra a capital de um país")
     async def cap(self, ctx, *, pais: str):
         """Mostra a capital de um país"""
-        with open('json/capitals.json', 'r', encoding='utf-8') as f:
+        with open('json/capitais.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
         
         pais = pais.strip()
@@ -74,17 +90,18 @@ class Utilidades(commands.Cog, name="Utilidades"):
     @ver.command(help="Mostra a moeda de um país")
     async def moeda(self, ctx, *, pais: str):
         """Mostra a moeda de um país"""
-        with open('json/capitals.json', 'r', encoding='utf-8') as f:
+        with open('json/capitais.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
         
         pais = pais.strip()
         info = data.get(pais.capitalize())
 
         if info:
-            moeda = info['currency']
+            moeda = info['moeda']
             await ctx.send(f"🌍 **{pais.capitalize()}**\n💰 Moeda: {moeda}\n")
         else:
             await ctx.send("❌ País não encontrado! Verifique se escreveu corretamente.")
+
 async def setup(bot):
     print(f"⚙️ Configurando cog Utilidades...")
     cog = Utilidades(bot)

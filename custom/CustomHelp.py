@@ -6,7 +6,7 @@ CATEGORY_ICONS = {
     "No Category": "📦",
     "default": "📁",
     "Geral": "✨",
-    "Fun": "🎭",
+    "Diversão": "🎭",
     "Utilidade": "🛠️",
     "Ver": "🔎"
 }
@@ -16,7 +16,10 @@ class CustomHelp(commands.HelpCommand):
     async def send_bot_help(self, mapping):
         embed = discord.Embed(
             title="📘 Menu de Ajuda",
-            description="Use `!help <comando>` para detalhes\nUse `!help <categoria>` para comandos da categoria",
+            description=(
+                "Use `!help <comando>` ou `!ajuda <comando>` para detalhes\n"
+                "Use `!help <categoria>` ou `!ajuda <categoria>` para comandos da categoria"
+            ),
             color=discord.Color.blue()
         )
 

@@ -1,5 +1,5 @@
 .env
-helpers/
+helpers/load_capitals.py
 custom/__pycache__
 custom/*.pyc
 cogs/__pycache__
