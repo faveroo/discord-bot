@@ -13,7 +13,8 @@ token = os.getenv("TOKEN")
 COGS = [
     'cogs.geral',
     'cogs.fun',
-    'cogs.utilidades'
+    'cogs.utilidades',
+    'cogs.economy',
 ]
 
 intents = discord.Intents.default()

@@ -3,8 +3,7 @@ import random
 import asyncio
 import httpx
 import os
-from helpers.piadas import piadas
-from helpers.piadas2 import piadas2
+import discord
 from deep_translator import GoogleTranslator
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -15,20 +14,6 @@ class Utilidades(commands.Cog, name="Utilidades"):
     def __init__(self, bot):
         self.bot = bot
         print(f"✅ Cog Utilidades inicializado com os comandos: {[c.name for c in self.get_commands()]}")
-
-    @commands.command(help="Conta uma piada aleatória 🇧🇷", aliases=["joke", "piadas"])
-    async def piada(self, ctx):
-        piada = random.choice(piadas)
-        print(piada)
-        await ctx.send(f"😂 {piada}")
-
-    @commands.command(help="piadas v2", aliases=["joke2", "piadas2"])
-    async def piada2(self, ctx):
-        piada_obj = random.choice(piadas2)
-        pergunta = piada_obj['pergunta']
-        resposta = piada_obj['resposta']
-
-        await ctx.send(f"😂 {pergunta}\n -{resposta}")
 
     @commands.command(help="Traduz texto automaticamente para português", aliases=["translate", "tr"])
     async def traduzir(self, ctx, *, texto):
@@ -52,19 +37,38 @@ class Utilidades(commands.Cog, name="Utilidades"):
         country = random.choice(list(capitals.keys()))
         capital = capitals[country]['capital']
 
-        await ctx.send(f"Qual é a capital de {country}?")
+        embed = discord.Embed(title="Jogo de Adivinhar a Capital", description="Qual a capital deste país?", color=discord.Color.green())
+        embed.add_field(name="País", value=country, inline=False)
+        await ctx.send(embed=embed)
 
         def check(m):
             return m.author == ctx.author and m.channel == ctx.channel
 
         try:
-            msg = await self.bot.wait_for('message', check=check, timeout=30.0)
-            if msg.content.strip().lower() == capital.lower():
-                await ctx.send(f"✅ Correto! A capital de {country} é {capital}!")
-            else:
-                await ctx.send(f"❌ Errado! A capital de {country} é {capital}.")
+            while True:
+                msg = await self.bot.wait_for(
+                    "message",
+                    check=check,
+                    timeout=30.0
+                )
+
+                if msg.content.strip().lower() == "cancelar":
+                    await ctx.send("❎ Jogo cancelado.")
+                    return
+
+                if msg.content.strip().lower() == capital.lower():
+                    embed = discord.Embed(
+                        title="✅ Resposta Correta!",
+                        description=f"A capital de **{country}** é **{capital}**!",
+                        color=discord.Color.blue()
+                    )
+                    await ctx.send(embed=embed)
+                    return
+                else:
+                    await ctx.send("❌ Errado! Tente novamente...")
+
         except asyncio.TimeoutError:
-            await ctx.send(f"⏰ Tempo esgotado! A capital de {country} é {capital}.")
+            await ctx.send(f"⏰ Tempo esgotado! A capital de **{country}** era **{capital}**.")
 
     @commands.group(help="Mostra informações interessantes", aliases=["show", "display"])
     async def ver(self, ctx):
