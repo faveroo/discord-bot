@@ -1,0 +1,7 @@
+import discord
+
+class SuccessEmbed:
+    @staticmethod
+    def create(title: str, description: str = "", color: discord.Color = discord.Color.green()) -> discord.Embed:
+        embed = discord.Embed(title=title, description=description, color=color)
+        return embed
