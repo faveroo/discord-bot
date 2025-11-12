@@ -32,24 +32,31 @@ class Utilidades(commands.Cog, name="Utilidades"):
 
         await ctx.send(embed=embed)
 
-    @commands.command(help="Te dá um conselho", aliases=["advice", "tip"])
-    async def conselho(self, ctx, *, translated: bool = True):
+    @commands.command(help="Te dá um conselho | use 'original' para manter em inglês", aliases=["advice", "tip"])
+    async def conselho(self, ctx, *, translated: str = "pt"):
         async with httpx.AsyncClient() as client:
-            response = await client.get("https://api.adviceslip.com/advice")
-            data = response.json()
-            advice = data['slip']['advice']
+            try:
+                response = await client.get("https://api.adviceslip.com/advice")
+                response.raise_for_status()
+                data = await response.json()
+                advice = data['slip']['advice']
+            except Exception as e:
+                return await ctx.send(f"❌ Erro ao obter conselho: {e}")
         
-        if translated:
-            advice = GoogleTranslator(source='auto', target='pt').translate(advice)
-            embed = default.DefaultEmbed.create(
-                title="💡 Conselho",
-                description=advice
-            )
-        else:
+        if translated.lower() == "original":
             embed = default.DefaultEmbed.create(
                 title="💡 Advice",
                 description=advice
             )
+        else:
+            try:
+                translated_advice = GoogleTranslator(source='auto', target='pt').translate(advice)
+            except Exception:
+                translated_advice = advice
+                embed = default.DefaultEmbed.create(
+                    title="💡 Conselho",
+                    description=translated_advice
+                )
         await ctx.send(embed=embed)
 
     @commands.command(help="Jogo de adivinhar a capital", aliases=["capitals"])
