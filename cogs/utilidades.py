@@ -53,7 +53,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
 
         translated_advice = ""
         try:
-                translated_advice = GoogleTranslator(source="auto", target=lang).translate(advice)
+            translated_advice = GoogleTranslator(source="auto", target=lang).translate(advice)
         except Exception as e:
             print(f"Erro na tradução - {e}")
             translated_advice = advice  # fallback caso dê erro
