@@ -1,4 +1,5 @@
 .env
+helpers/traduzir_json.py
 helpers/load_capitals.py
 custom/__pycache__
 custom/*.pyc
