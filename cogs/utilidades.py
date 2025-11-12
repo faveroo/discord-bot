@@ -35,25 +35,27 @@ class Utilidades(commands.Cog, name="Utilidades"):
     @commands.command(help="Te dá um conselho | use 'en' para manter em inglês", aliases=["advice", "tip"])
     async def conselho(self, ctx, *, translated: str = "pt"):
         lang = (translated or "pt").strip().lower()
-        supported_langs = GoogleTranslator.get_supported_languages(as_dict=True)
+        translator = GoogleTranslator()
+        supported_langs = translator.get_supported_languages(as_dict=True)
+        # print(supported_langs)
         
-        if lang not in supported_langs.keys():
+        if lang not in supported_langs.values():
             lang = "pt"
-            
+        
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.get("https://api.adviceslip.com/advice")
                 response.raise_for_status()
-                data = await response.json()
+                data = response.json()
                 advice = data["slip"]["advice"]
             except Exception as e:
                 return await ctx.send(f"❌ Erro ao obter conselho: {e}")
 
-        translated_advice = advice
+        translated_advice = ""
         try:
-            if not lang.startswith("pt"):
                 translated_advice = GoogleTranslator(source="auto", target=lang).translate(advice)
-        except Exception:
+        except Exception as e:
+            print(f"Erro na tradução - {e}")
             translated_advice = advice  # fallback caso dê erro
 
         title = "💡 Advice" if lang.startswith("en") else "💡 Conselho"
