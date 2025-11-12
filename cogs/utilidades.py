@@ -81,7 +81,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
         if ctx.invoked_subcommand is None:
             await ctx.send("❓ Por favor, especifique o que você quer ver. Use `!help ver` para mais informações.")
 
-    @ver.command(help="Mostra a capital de um país")
+    @ver.command(name="capital", help="Mostra a capital de um país")
     async def cap(self, ctx, *, pais: str):
         """Mostra a capital de um país"""
         with open('json/capitais.json', 'r', encoding='utf-8') as f:
@@ -89,12 +89,23 @@ class Utilidades(commands.Cog, name="Utilidades"):
         
         pais = pais.strip()
         info = data.get(pais.capitalize())
+        
 
         if info:
             capital = info['capital']
-            await ctx.send(f"🌍 **{pais.capitalize()}**\n📍 Capital: {capital}\n")
+            
+            embed = default.DefaultEmbed.create(
+                title=f"🌍 Capital de {pais.capitalize()}",
+                description=f"A capital de **{pais.capitalize()}** é **{capital}**."
+            )
+            
+            await ctx.send(embed=embed)
         else:
-            await ctx.send("❌ País não encontrado! Verifique se escreveu corretamente.")
+            embed = error.ErrorEmbed.create(
+                title="❌ País não encontrado!",
+                description="Verifique se escreveu corretamente."
+            )
+            await ctx.send(embed=embed)
 
     @ver.command(help="Mostra a moeda de um país")
     async def moeda(self, ctx, *, pais: str):
