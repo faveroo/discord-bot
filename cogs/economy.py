@@ -1,4 +1,5 @@
 import discord
+import random
 from discord.ext import commands
 from embed import error, success, default
 from discord import app_commands
@@ -98,6 +99,35 @@ class Economy(commands.Cog, name="Economia"):
             else:
                 description += f"**{idx}. Usuário Desconhecido** - {user_data['saldo']} moedas\n"
         embed.description = description
+        await ctx.send(embed=embed)
+    
+    @commands.command(name="daily", help="Resgatar sua recompensa diária de moedas", aliases=["diario"])
+    async def daily(self, ctx):
+        from database import get_currency, update_currency, get_last_daily, set_last_daily
+        import datetime
+        
+        user = ctx.author
+        last_daily = await get_last_daily(user)
+        now = datetime.datetime.now()
+        
+        if last_daily and (now - last_daily).days < 1:
+            next_claim = last_daily + datetime.timedelta(days=1)
+            time_remaining = next_claim - now
+            hours, remainder = divmod(int(time_remaining.total_seconds()), 3600)
+            minutes, seconds = divmod(remainder, 60)
+            return await ctx.send(embed=error.ErrorEmbed.create(
+                title="❌ Recompensa Diária Já Resgatada",
+                description=f"Você já resgatou sua recompensa diária. Tente novamente em {hours}h {minutes}m {seconds}s."
+            ))
+        
+        rewards_amount = random.randint(50, 350)
+        await update_currency(user, rewards_amount)
+        await set_last_daily(user, now)
+        
+        embed = success.SuccessEmbed.create(
+            title="✅ Recompensa Diária Resgatada!",
+            description=f"Você recebeu {rewards_amount} moedas como recompensa diária."
+        )
         await ctx.send(embed=embed)
         
 async def setup(bot):
