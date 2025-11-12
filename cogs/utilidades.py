@@ -32,31 +32,37 @@ class Utilidades(commands.Cog, name="Utilidades"):
 
         await ctx.send(embed=embed)
 
-    @commands.command(help="Te dá um conselho | use 'original' para manter em inglês", aliases=["advice", "tip"])
+    @commands.command(help="Te dá um conselho | use 'en' para manter em inglês", aliases=["advice", "tip"])
     async def conselho(self, ctx, *, translated: str = "pt"):
+        lang = (translated or "pt").strip().lower()
+        supported_langs = GoogleTranslator.get_supported_languages(as_dict=True)
+        
+        if lang not in supported_langs.keys():
+            lang = "pt"
+            
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.get("https://api.adviceslip.com/advice")
                 response.raise_for_status()
                 data = await response.json()
-                advice = data['slip']['advice']
+                advice = data["slip"]["advice"]
             except Exception as e:
                 return await ctx.send(f"❌ Erro ao obter conselho: {e}")
-        
-        if translated.lower() == "original":
-            embed = default.DefaultEmbed.create(
-                title="💡 Advice",
-                description=advice
-            )
-        else:
-            try:
-                translated_advice = GoogleTranslator(source='auto', target='pt').translate(advice)
-            except Exception:
-                translated_advice = advice
-                embed = default.DefaultEmbed.create(
-                    title="💡 Conselho",
-                    description=translated_advice
-                )
+
+        translated_advice = advice
+        try:
+            if not lang.startswith("pt"):
+                translated_advice = GoogleTranslator(source="auto", target=lang).translate(advice)
+        except Exception:
+            translated_advice = advice  # fallback caso dê erro
+
+        title = "💡 Advice" if lang.startswith("en") else "💡 Conselho"
+
+        embed = default.DefaultEmbed.create(
+            title=title,
+            description=translated_advice
+        )
+
         await ctx.send(embed=embed)
 
     @commands.command(help="Jogo de adivinhar a capital", aliases=["capitals"])
