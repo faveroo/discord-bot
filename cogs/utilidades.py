@@ -32,7 +32,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
 
         await ctx.send(embed=embed)
 
-    @commands.command(help="Te dá um conselho | use 'en' para manter em inglês", aliases=["advice", "tip"])
+    @commands.command(help="Te dá um conselho no idioma desejado. Ex: pt, en, es...", aliases=["advice", "tip"], usage="[idioma]")
     async def conselho(self, ctx, *, translated: str = "pt"):
         lang = (translated or "pt").strip().lower()
         translator = GoogleTranslator()
