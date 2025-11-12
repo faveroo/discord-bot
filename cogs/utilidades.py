@@ -18,17 +18,39 @@ class Utilidades(commands.Cog, name="Utilidades"):
 
     @commands.command(help="Traduz texto automaticamente para português", aliases=["translate", "tr"])
     async def traduzir(self, ctx, *, texto):
-        t = GoogleTranslator(source='auto', target='pt').translate(texto)
-        await ctx.send(f"📘 Tradução: {t}")
+        try:
+            t = GoogleTranslator(source='auto', target='pt').translate(texto)
+            embed = default.DefaultEmbed.create(
+            title="📖 Tradução",
+            description=f"**Original:** {texto}\n**Traduzido:** {t}"
+            )
+        except Exception:
+            embed = error.ErrorEmbed.create(
+                title="❌ Erro na Tradução",
+                description="Ocorreu um erro ao tentar traduzir o texto"
+            )
+
+        await ctx.send(embed=embed)
 
     @commands.command(help="Te dá um conselho", aliases=["advice", "tip"])
-    async def conselho(self, ctx):
+    async def conselho(self, ctx, *, translated: bool = True):
         async with httpx.AsyncClient() as client:
             response = await client.get("https://api.adviceslip.com/advice")
             data = response.json()
             advice = data['slip']['advice']
-            translated_advice = GoogleTranslator(source='auto', target='pt').translate(advice)
-        await ctx.send(f"💡 Conselho: {translated_advice}")
+        
+        if translated:
+            advice = GoogleTranslator(source='auto', target='pt').translate(advice)
+            embed = default.DefaultEmbed.create(
+                title="💡 Conselho",
+                description=advice
+            )
+        else:
+            embed = default.DefaultEmbed.create(
+                title="💡 Advice",
+                description=advice
+            )
+        await ctx.send(embed=embed)
 
     @commands.command(help="Jogo de adivinhar a capital", aliases=["capitals"])
     async def capital(self, ctx):
