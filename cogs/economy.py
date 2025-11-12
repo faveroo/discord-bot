@@ -47,24 +47,6 @@ class Economy(commands.Cog, name="Economia"):
         )
 
         await interaction.response.send_message(embed=embed)
-    
-    @commands.command(name="setbalance", help="Definir o saldo de um usuário (Admin apenas)", aliases=["set saldo", "set money"])
-    async def set_saldo(self, ctx, member: discord.Member, amount: int):
-        MASTER_ID = 497764917063974914
-
-        if not (ctx.author.id == MASTER_ID or ctx.author.guild_permissions.administrator):
-            return await ctx.send(embed=error.ErrorEmbed.create(
-                title="❌ Permissão Negada",)
-        )
-        
-        from database import set_currency
-        await set_currency(member, amount)
-
-        embed = success.SuccessEmbed.create(
-            title="Saldo Definido", 
-            description=f"💰 O saldo de {member.mention} foi definido para {amount} moedas.", 
-        )
-        await ctx.send(embed=embed)
 
     @commands.command(name="give", help="Dar moedas para outro usuário", aliases=["dar", "transfer"])
     async def give(self, ctx, member: discord.Member = None, amount: int = 0):
