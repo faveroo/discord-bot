@@ -18,17 +18,54 @@ class Utilidades(commands.Cog, name="Utilidades"):
 
     @commands.command(help="Traduz texto automaticamente para português", aliases=["translate", "tr"])
     async def traduzir(self, ctx, *, texto):
-        t = GoogleTranslator(source='auto', target='pt').translate(texto)
-        await ctx.send(f"📘 Tradução: {t}")
+        try:
+            t = GoogleTranslator(source='auto', target='pt').translate(texto)
+            embed = default.DefaultEmbed.create(
+            title="📖 Tradução",
+            description=f"**Original:** {texto}\n**Traduzido:** {t}"
+            )
+        except Exception:
+            embed = error.ErrorEmbed.create(
+                title="❌ Erro na Tradução",
+                description="Ocorreu um erro ao tentar traduzir o texto"
+            )
 
-    @commands.command(help="Te dá um conselho", aliases=["advice", "tip"])
-    async def conselho(self, ctx):
+        await ctx.send(embed=embed)
+
+    @commands.command(help="Te dá um conselho | use 'en' para manter em inglês", aliases=["advice", "tip"])
+    async def conselho(self, ctx, *, translated: str = "pt"):
+        lang = (translated or "pt").strip().lower()
+        translator = GoogleTranslator()
+        supported_langs = translator.get_supported_languages(as_dict=True)
+        # print(supported_langs)
+        
+        if lang not in supported_langs.values():
+            lang = "pt"
+        
         async with httpx.AsyncClient() as client:
-            response = await client.get("https://api.adviceslip.com/advice")
-            data = response.json()
-            advice = data['slip']['advice']
-            translated_advice = GoogleTranslator(source='auto', target='pt').translate(advice)
-        await ctx.send(f"💡 Conselho: {translated_advice}")
+            try:
+                response = await client.get("https://api.adviceslip.com/advice")
+                response.raise_for_status()
+                data = response.json()
+                advice = data["slip"]["advice"]
+            except Exception as e:
+                return await ctx.send(f"❌ Erro ao obter conselho: {e}")
+
+        translated_advice = ""
+        try:
+            translated_advice = GoogleTranslator(source="auto", target=lang).translate(advice)
+        except Exception as e:
+            print(f"Erro na tradução - {e}")
+            translated_advice = advice  # fallback caso dê erro
+
+        title = "💡 Advice" if lang.startswith("en") else "💡 Conselho"
+
+        embed = default.DefaultEmbed.create(
+            title=title,
+            description=translated_advice
+        )
+
+        await ctx.send(embed=embed)
 
     @commands.command(help="Jogo de adivinhar a capital", aliases=["capitals"])
     async def capital(self, ctx):
@@ -81,7 +118,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
         if ctx.invoked_subcommand is None:
             await ctx.send("❓ Por favor, especifique o que você quer ver. Use `!help ver` para mais informações.")
 
-    @ver.command(help="Mostra a capital de um país")
+    @ver.command(name="capital", help="Mostra a capital de um país")
     async def cap(self, ctx, *, pais: str):
         """Mostra a capital de um país"""
         with open('json/capitais.json', 'r', encoding='utf-8') as f:
@@ -89,12 +126,23 @@ class Utilidades(commands.Cog, name="Utilidades"):
         
         pais = pais.strip()
         info = data.get(pais.capitalize())
+        
 
         if info:
             capital = info['capital']
-            await ctx.send(f"🌍 **{pais.capitalize()}**\n📍 Capital: {capital}\n")
+            
+            embed = default.DefaultEmbed.create(
+                title=f"🌍 Capital de {pais.capitalize()}",
+                description=f"A capital de **{pais.capitalize()}** é **{capital}**."
+            )
+            
+            await ctx.send(embed=embed)
         else:
-            await ctx.send("❌ País não encontrado! Verifique se escreveu corretamente.")
+            embed = error.ErrorEmbed.create(
+                title="❌ País não encontrado!",
+                description="Verifique se escreveu corretamente."
+            )
+            await ctx.send(embed=embed)
 
     @ver.command(help="Mostra a moeda de um país")
     async def moeda(self, ctx, *, pais: str):
