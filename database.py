@@ -59,3 +59,15 @@ async def get_top_users(limit=10):
     async for user in cursor:
         top_users.append(user)
     return top_users
+
+async def get_last_daily(usuario):
+    await new_user(usuario)
+    filter = {"discord_id": usuario.id}
+    user_data = await usuarios.find_one(filter)
+    return user_data.get("last_daily", None)
+
+async def set_last_daily(usuario, timestamp):
+    await new_user(usuario)
+    filter = {"discord_id": usuario.id}
+    update = {"$set": {"last_daily": timestamp}}
+    await usuarios.update_one(filter, update)
