@@ -4,6 +4,7 @@ import asyncio
 import httpx
 import os
 import discord
+from embed.default import DefaultEmbed
 from deep_translator import GoogleTranslator
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -37,12 +38,13 @@ class Utilidades(commands.Cog, name="Utilidades"):
         country = random.choice(list(capitals.keys()))
         capital = capitals[country]['capital']
 
-        embed = discord.Embed(title="Jogo de Adivinhar a Capital", description="Qual a capital deste país?", color=discord.Color.green())
+
+        embed = DefaultEmbed.create(title="🗺️ Jogo da Capital",)
         embed.add_field(name="País", value=country, inline=False)
         await ctx.send(embed=embed)
 
         def check(m):
-            return m.author == ctx.author and m.channel == ctx.channel
+            return m.channel == ctx.channel
 
         try:
             while True:
@@ -52,16 +54,19 @@ class Utilidades(commands.Cog, name="Utilidades"):
                     timeout=30.0
                 )
 
-                if msg.content.strip().lower() == "cancelar":
+                from helpers.normalize import normalize
+                if normalize(msg.content.strip()) == "cancelar":
                     await ctx.send("❎ Jogo cancelado.")
                     return
 
-                if msg.content.strip().lower() == capital.lower():
+                if normalize(msg.content.strip()) == normalize(capital):
                     embed = discord.Embed(
                         title="✅ Resposta Correta!",
-                        description=f"A capital de **{country}** é **{capital}**!",
+                        description=f"A capital de **{country}** é **{capital}**! +50 moedas.",
                         color=discord.Color.blue()
                     )
+                    from database import update_currency
+                    await update_currency(ctx.author, 50)
                     await ctx.send(embed=embed)
                     return
                 else:
