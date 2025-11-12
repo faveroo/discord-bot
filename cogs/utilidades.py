@@ -4,7 +4,7 @@ import asyncio
 import httpx
 import os
 import discord
-from embed.default import DefaultEmbed
+from embed import error, success, default
 from deep_translator import GoogleTranslator
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -39,7 +39,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
         capital = capitals[country]['capital']
 
 
-        embed = DefaultEmbed.create(title="🗺️ Jogo da Capital",)
+        embed = default.DefaultEmbed.create(title="🗺️ Jogo da Capital",)
         embed.add_field(name="País", value=country, inline=False)
         await ctx.send(embed=embed)
 
@@ -110,6 +110,44 @@ class Utilidades(commands.Cog, name="Utilidades"):
             await ctx.send(f"🌍 **{pais.capitalize()}**\n💰 Moeda: {moeda}\n")
         else:
             await ctx.send("❌ País não encontrado! Verifique se escreveu corretamente.")
+
+    @commands.command(name="rps", help="Jogo Pedra, Papel ou Tesoura", aliases=["paperrock", "papelpedra", "rockpaperscissors"])
+    async def rps(self, ctx, escolha: str, amount: int):
+        from database import get_currency, update_currency
+        escolhas_validas = ["pedra", "papel", "tesoura"]
+        escolha = escolha.lower()
+        if escolha not in escolhas_validas:
+            return await ctx.send(embed=error.ErrorEmbed.create(title="❌ Erro", description="Escolha inválida! Use 'pedra', 'papel' ou 'tesoura'."))
+
+        saldo_atual = await get_currency(ctx.author)
+        if amount <= 0:
+            return await ctx.send(embed=error.ErrorEmbed.create(title="❌ Erro", description="A quantia deve ser maior que zero."))
+        if saldo_atual < amount:
+            return await ctx.send(embed=error.ErrorEmbed.create(title="❌ Erro", description="Saldo insuficiente para essa aposta."))
+        
+        bot_escolha = random.choice(escolhas_validas)
+        resultado = ""
+
+        if escolha == bot_escolha:
+            embed = default.DefaultEmbed.create(
+                title="🤝 Empate!",
+                description=f"{escolha} x {bot_escolha}\nNinguém ganha ou perde moedas."
+            )
+        elif (escolha == "pedra" and bot_escolha == "tesoura") or \
+             (escolha == "papel" and bot_escolha == "pedra") or \
+             (escolha == "tesoura" and bot_escolha == "papel"):
+            embed = success.SuccessEmbed.create(
+                title="🏆 Você Ganhou!",
+                description=f"{escolha} x {bot_escolha}\nParabéns! Você ganhou {amount} moedas."
+            )
+            await update_currency(ctx.author, amount)
+        else:
+            await update_currency(ctx.author, -amount)
+            embed = error.ErrorEmbed.create(
+                title="😞 Você Perdeu!",
+                description=f"{escolha} x {bot_escolha}\nVocê perdeu {amount} moedas. Tente novamente!"
+            )
+        await ctx.send(embed=embed)
 
 async def setup(bot):
     print(f"⚙️ Configurando cog Utilidades...")
