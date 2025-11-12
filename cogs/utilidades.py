@@ -126,8 +126,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
             return await ctx.send(embed=error.ErrorEmbed.create(title="❌ Erro", description="Saldo insuficiente para essa aposta."))
         
         bot_escolha = random.choice(escolhas_validas)
-        resultado = ""
-
+        b_emoji = {"pedra": "🪨", "papel": "📄", "tesoura": "✂️"}
         if escolha == bot_escolha:
             embed = default.DefaultEmbed.create(
                 title="🤝 Empate!",
@@ -138,7 +137,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
              (escolha == "tesoura" and bot_escolha == "papel"):
             embed = success.SuccessEmbed.create(
                 title="🏆 Você Ganhou!",
-                description=f"{escolha} x {bot_escolha}\nParabéns! Você ganhou {amount} moedas."
+                description=f"{b_emoji[escolha]} x {b_emoji[bot_escolha]}\nParabéns! Você ganhou {amount} moedas."
             )
             await update_currency(ctx.author, amount)
         else:
