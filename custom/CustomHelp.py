@@ -9,6 +9,8 @@ CATEGORY_ICONS = {
     "Diversão": "🎭",
     "Utilidade": "🛠️",
     "Economia": "💰",
+    "Jogos": "🎮",
+    "Moderação": "🛡️",
 }
 
 class CustomHelp(commands.HelpCommand):
