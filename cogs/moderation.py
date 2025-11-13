@@ -19,12 +19,11 @@ class Moderation(commands.Cog, name="Moderação"):
 
         deleted = await ctx.channel.purge(limit=amount + 1)  # +1 para incluir o comando
         await ctx.send(embed=success.SuccessEmbed.create(
-            title=f"✅ {deleted} Mensagens Apagadas",
+            title=f"✅ {len(deleted) - 1} Mensagens Apagadas",
         ), delete_after=5)
     
-    @commands.Cog.listener()
-    async def on_command_error(self, ctx, error):
-        if ctx.command and ctx.command.cog_name != "moderation":
+    async def cog_command_error(self, ctx, error):
+        if ctx.command and ctx.command.cog_name != "Moderação":
             return
 
         traducao = {
@@ -42,7 +41,7 @@ class Moderation(commands.Cog, name="Moderação"):
             await ctx.send("⚠️ Usuário não encontrado.") 
             
         else:
-            await self.bot.on_command_error(ctx, error)
+            raise error
 
 async def setup(bot):
     await bot.add_cog(Moderation(bot))

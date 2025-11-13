@@ -29,7 +29,7 @@ help_cmd.aliases = ['ajuda']
 bot = commands.Bot(
     command_prefix="!",
     intents=intents,
-    help_command=help_cmd  # ✅ ativa o help customizado com alias
+    help_command=help_cmd # CustomHelp
 )
 
 # ------------------------------------------------
