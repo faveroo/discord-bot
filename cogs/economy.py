@@ -2,6 +2,7 @@ import discord
 import random
 from discord.ext import commands
 from embed import error, success, default
+from database import get_currency
 from discord import app_commands
 from dotenv import load_dotenv
 
@@ -34,20 +35,20 @@ class Economy(commands.Cog, name="Economia"):
 
         await ctx.send(embed=embed)
 
-    @app_commands.command(name="saldo", description="Ver seu saldo atual 💰")
+    @app_commands.command(name="saldo", description="💰 Veja seu saldo atual ou o de outro usuário.")
     async def saldo(self, interaction: discord.Interaction, member: discord.Member = None):
-        from database import get_currency
-        user = member or interaction.user
+        await interaction.response.defer()
 
+        user = member or interaction.user
         saldo_atual = await get_currency(user)
 
         embed = discord.Embed(
-        title=f"Saldo de {user.display_name}",
-        description=f"💰 {user.mention} tem **{saldo_atual}** moedas.",
-        color=discord.Color.green()
+            title=f"Saldo de {user.display_name}",
+            description=f"💰 {user.mention} tem **{saldo_atual:,}** moedas.",
+            color=discord.Color.green()
         )
 
-        await interaction.response.send_message(embed=embed)
+        await interaction.followup.send(embed=embed)
 
     @commands.command(name="give", help="Dar moedas para outro usuário", aliases=["dar", "transfer"])
     async def give(self, ctx, member: discord.Member = None, amount: int = 0):
