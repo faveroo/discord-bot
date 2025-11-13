@@ -1,12 +1,16 @@
 import discord
 from discord.ext import commands
-from embed import success, error, default
+from embed import success, error, default, info
 
 class Moderation(commands.Cog, name="Moderação"):
     """Comandos de Moderação"""
 
     def __init__(self, bot):
         self.bot = bot
+    
+    @property
+    def modlog(self):
+        return self.bot.get_cog("ModLog")
 
     @commands.command(name="clear", help="Limpa mensagens no canal", aliases=["limpar", "purge"])
     @commands.has_permissions(manage_messages=True)
@@ -21,6 +25,19 @@ class Moderation(commands.Cog, name="Moderação"):
         await ctx.send(embed=success.SuccessEmbed.create(
             title=f"✅ {len(deleted) - 1} Mensagens Apagadas",
         ), delete_after=5)
+    
+    @commands.command(name="kick", help="Expulsa um membro do servidor", aliases=["expulsar", "lowkick"])
+    @commands.has_permissions(kick_members=True)
+    async def kick(self, ctx, member: discord.Member, *, reason: str):
+        await member.kick(reason=reason)
+        await ctx.send(f"Usuário {member.mention} foi punido!")
+        
+        if self.modlog:
+            embed = info.InfoEmbed.create(
+                title="👢 Usuário Expulso",
+                description=f"**Moderador:** {ctx.author}\n**Usuário:** {member}\n**Motivo:** {reason}"
+            )
+            await self.modlog.send_log(ctx.guild, embed)
     
     async def cog_command_error(self, ctx, error):
         if ctx.command and ctx.command.cog_name != "Moderação":
