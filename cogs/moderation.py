@@ -19,11 +19,14 @@ class Moderation(commands.Cog, name="Moderação"):
 
         deleted = await ctx.channel.purge(limit=amount + 1)  # +1 para incluir o comando
         await ctx.send(embed=success.SuccessEmbed.create(
-            title="✅ Mensagens Apagadas",
+            title=f"✅ {deleted} Mensagens Apagadas",
         ), delete_after=5)
     
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
+        if ctx.command and ctx.command.cog_name != "moderation":
+            return
+
         traducao = {
             "Manage Messages": "Gerenciar mensagens",
             "Ban Members": "Banir membros",
@@ -35,6 +38,11 @@ class Moderation(commands.Cog, name="Moderação"):
             permissoes = [perm.replace('_', ' ').title() for perm in error.missing_permissions]
             lista = ', '.join(traducao.get(p, p) for p in permissoes)
             await ctx.send(f"🚫 Você precisa das permissões: **{lista}** para usar este comando.")
+        elif isinstance(error, commands.MemberNotFound):
+            await ctx.send("⚠️ Usuário não encontrado.") 
+            
+        else:
+            await self.bot.on_command_error(ctx, error)
 
 async def setup(bot):
     await bot.add_cog(Moderation(bot))
