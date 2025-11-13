@@ -67,51 +67,6 @@ class Utilidades(commands.Cog, name="Utilidades"):
 
         await ctx.send(embed=embed)
 
-    @commands.command(help="Jogo de adivinhar a capital", aliases=["capitals"])
-    async def capital(self, ctx):
-        with open('json/capitais.json', 'r', encoding='utf-8') as f:
-            capitals = json.load(f)
-
-        country = random.choice(list(capitals.keys()))
-        capital = capitals[country]['capital']
-
-
-        embed = default.DefaultEmbed.create(title="🗺️ Jogo da Capital",)
-        embed.add_field(name="País", value=country, inline=False)
-        await ctx.send(embed=embed)
-
-        def check(m):
-            return m.channel == ctx.channel
-
-        try:
-            while True:
-                msg = await self.bot.wait_for(
-                    "message",
-                    check=check,
-                    timeout=30.0
-                )
-
-                from helpers.normalize import normalize
-                if normalize(msg.content.strip()) == "cancelar":
-                    await ctx.send("❎ Jogo cancelado.")
-                    return
-
-                if normalize(msg.content.strip()) == normalize(capital):
-                    embed = discord.Embed(
-                        title="✅ Resposta Correta!",
-                        description=f"A capital de **{country}** é **{capital}**! +50 moedas.",
-                        color=discord.Color.blue()
-                    )
-                    from database import update_currency
-                    await update_currency(ctx.author, 50)
-                    await ctx.send(embed=embed)
-                    return
-                else:
-                    await ctx.send("❌ Errado! Tente novamente...")
-
-        except asyncio.TimeoutError:
-            await ctx.send(f"⏰ Tempo esgotado! A capital de **{country}** era **{capital}**.")
-
     @commands.group(help="Mostra informações interessantes", aliases=["show", "display"])
     async def ver(self, ctx):
         """Comando para ver coisas interessantes"""
@@ -124,8 +79,8 @@ class Utilidades(commands.Cog, name="Utilidades"):
         with open('json/capitais.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
         
-        pais = pais.strip()
-        info = data.get(pais.capitalize())
+        pais = pais.strip().title()
+        info = data.get(pais)
         
 
         if info:
@@ -150,8 +105,8 @@ class Utilidades(commands.Cog, name="Utilidades"):
         with open('json/capitais.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
         
-        pais = pais.strip()
-        info = data.get(pais.capitalize())
+        pais = pais.strip().title()
+        info = data.get(pais)
 
         if info:
             moeda = info['moeda']
@@ -160,7 +115,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
             await ctx.send("❌ País não encontrado! Verifique se escreveu corretamente.")
 
     @commands.command(name="rps", help="Jogo Pedra, Papel ou Tesoura", aliases=["paperrock", "papelpedra", "rockpaperscissors"])
-    async def rps(self, ctx, escolha: str, amount: int):
+    async def rps(self, ctx, escolha: str, amount: int = 0):
         from database import get_currency, update_currency
         escolhas_validas = ["pedra", "papel", "tesoura"]
         escolha = escolha.lower()
@@ -198,6 +153,5 @@ class Utilidades(commands.Cog, name="Utilidades"):
 
 async def setup(bot):
     print(f"⚙️ Configurando cog Utilidades...")
-    cog = Utilidades(bot)
-    await bot.add_cog(cog)
+    await bot.add_cog(Utilidades(bot))
     print(f"✅ Cog Utilidades adicionado com sucesso!")
