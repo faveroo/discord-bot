@@ -1,6 +1,7 @@
 import discord
 import os
 from custom.CustomHelp import CustomHelp
+from handlers.global_errors import setup_global_error_handler
 from discord.ext import commands
 from discord import app_commands
 from dotenv import load_dotenv
