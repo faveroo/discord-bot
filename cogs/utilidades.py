@@ -150,7 +150,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
                 description=f"{escolha} x {bot_escolha}\nVocê perdeu {amount} moedas. Tente novamente!"
             )
         await ctx.send(embed=embed)
-
+            
 async def setup(bot):
     print(f"⚙️ Configurando cog Utilidades...")
     await bot.add_cog(Utilidades(bot))
