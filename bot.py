@@ -12,9 +12,11 @@ token = os.getenv("TOKEN")
 # Lista de cogs para carregar
 COGS = [
     'cogs.geral',
+    'cogs.games',
     'cogs.fun',
     'cogs.utilidades',
     'cogs.economy',
+    'cogs.moderation'
 ]
 
 intents = discord.Intents.default()
