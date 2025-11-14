@@ -150,7 +150,21 @@ class Utilidades(commands.Cog, name="Utilidades"):
                 description=f"{escolha} x {bot_escolha}\nVocê perdeu {amount} moedas. Tente novamente!"
             )
         await ctx.send(embed=embed)
-            
+    
+    @commands.command(name="avatar", help="Exibe o avatar do usuário", aliases=["icon", "pfp"])
+    async def avatar(self, ctx, member: discord.Member = None):
+        if not member:
+            member = ctx.author
+        
+        avatar_url = member.avatar.url if member.avatar else member.default_avatar.url
+
+        embed = default.DefaultEmbed.create(
+            title=f"Avatar de {member}"
+        )
+        embed.set_image(url=avatar_url)
+        await ctx.send(embed=embed)
+
+
 async def setup(bot):
     print(f"⚙️ Configurando cog Utilidades...")
     await bot.add_cog(Utilidades(bot))
