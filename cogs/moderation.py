@@ -91,28 +91,5 @@ class Moderation(commands.Cog, name="Moderação"):
             )
             await ctx.send(embed=timeout_embed)
         
-
-
-    async def cog_command_error(self, ctx, error):
-        if ctx.command and ctx.command.cog_name != "Moderação":
-            return
-
-        traducao = {
-            "Manage Messages": "Gerenciar mensagens",
-            "Ban Members": "Banir membros",
-            "Kick Members": "Expulsar membros",
-            "Moderate Members": "Moderar membros",
-        }
-
-        if isinstance(error, commands.MissingPermissions):
-            permissoes = [perm.replace('_', ' ').title() for perm in error.missing_permissions]
-            lista = ', '.join(traducao.get(p, p) for p in permissoes)
-            await ctx.send(f"🚫 Você precisa das permissões: **{lista}** para usar este comando.")
-        elif isinstance(error, commands.MemberNotFound):
-            await ctx.send("⚠️ Usuário não encontrado.") 
-            
-        else:
-            raise error
-
 async def setup(bot):
     await bot.add_cog(Moderation(bot))

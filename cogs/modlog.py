@@ -46,23 +46,6 @@ class ModLog(commands.Cog):
         if channel:
             await channel.send(embed=embed)
     
-
-    async def cog_command_error(self, ctx, error):
-        if ctx.command and ctx.command.cog_name != "ModLog":
-            return
-
-        traducao = {
-            "Manage Guild": "Gerenciar Guilda/Servidor",
-
-        }
-
-        if isinstance(error, commands.MissingPermissions):
-            permissoes = [perm.replace('_', ' ').title() for perm in error.missing_permissions]
-            lista = ', '.join(traducao.get(p, p) for p in permissoes)
-            await ctx.send(f"🚫 Você precisa das permissões: **{lista}** para usar este comando.")       
-        else:
-            print("aqui")
-            raise error
         
 async def setup(bot):
     await bot.add_cog(ModLog(bot))
