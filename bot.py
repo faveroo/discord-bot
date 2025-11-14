@@ -17,11 +17,16 @@ COGS = [
     'cogs.fun',
     'cogs.utilidades',
     'cogs.economy',
-    'cogs.moderation'
+    'cogs.moderation',
+    'cogs.modlog'
 ]
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.guilds = True
+intents.members = True
+intents.reactions = True  
+intents.messages = True 
 
 help_cmd = CustomHelp()
 help_cmd.aliases = ['ajuda']
