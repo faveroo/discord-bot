@@ -1,5 +1,6 @@
 import discord
 from embed import error, info, default, success
+from database import get_modlog, set_modlog
 from discord.ext import commands
 
 class ModLog(commands.Cog):
@@ -7,12 +8,11 @@ class ModLog(commands.Cog):
     
     def __init__(self, bot):
         self.bot = bot
-        self.log_channels = {} # {guild_id: channel_id}
     
     @commands.has_permissions(manage_guild=True)
     @commands.command(name="setmodlog", help="Define o canal de log", hidden=True)
-    async def set_modlog(self, ctx, channel: discord.TextChannel):
-        self.log_channels[ctx.guild.id] = channel.id
+    async def set_modlog_cmd(self, ctx, channel: discord.TextChannel):
+        await set_modlog(ctx.guild.id, channel.id)
         embed = success.SuccessEmbed.create(
             title="✅ Mod-log definido com sucesso"
         )
@@ -20,8 +20,8 @@ class ModLog(commands.Cog):
     
     @commands.has_permissions(manage_guild=True)
     @commands.command(name="showmodlog", help="Mostra o canal configurado para o Mod-log", hidden=True)
-    async def show_modlog(self, ctx):
-        channel_id = self.log_channels.get(ctx.guild.id)
+    async def show_modlog_cmd(self, ctx):
+        channel_id = await get_modlog(ctx.guild.id)
         if not channel_id:
             embed = info.InfoEmbed.create(
                 title="⚠️ Nenhum canal configurado"
@@ -37,7 +37,7 @@ class ModLog(commands.Cog):
         
     async def send_log(self, guild: discord.Guild, embed: discord.Embed):
         """"Envia um embed de log"""
-        channel_id = self.log_channels.get(guild.id)
+        channel_id = await get_modlog(guild.id)
         
         if not channel_id:
             return
