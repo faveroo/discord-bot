@@ -39,6 +39,60 @@ class Moderation(commands.Cog, name="Moderação"):
             )
             await self.modlog.send_log(ctx.guild, embed)
     
+    @commands.command(name="ban", help="Bane um membro do servidor", aliases = ["banir", "b"])
+    @commands.has_permissions(ban_members=True)
+    async def ban(self, ctx, member: discord.Member, *, reason: str):
+        embed = info.InfoEmbed.create(
+            title="🚨 Confirmação de banimento",
+            description=f"Tem certeza que deseja banir o membro {member.mention}?"
+        )
+        embed.add_field(name="Motivo", value=reason, inline=False)
+        embed.set_footer(text="Reaja com ✅ para confirmar ou ❌ para cancelar (30s).")
+
+        confirm_msg = await ctx.send(embed=embed)
+        try:
+            await confirm_msg.add_reaction("✅")
+            await confirm_msg.add_reaction("❌")
+        except discord.Forbidden:
+            await ctx.send("⚠️ Não tenho permissão para adicionar reações aqui.")
+            return
+
+        def check(reaction, user):
+            return (
+                user == ctx.author
+                and str(reaction.emoji) in ["✅", "❌"]
+                and reaction.message.id == confirm_msg.id
+            )
+        try:
+            reaction, user = await self.bot.wait_for("reaction_add", timeout=30.0, check=check)
+
+            if str(reaction.emoji) == "✅":
+                await member.ban(reason=reason)
+                confirm_embed = discord.Embed(
+                    title="✅ Banimento efetuado",
+                    description=f"{member.mention} foi banido com sucesso.",
+                    color=discord.Color.green()
+                )
+                await ctx.send(embed=confirm_embed)
+
+            else:
+                cancel_embed = discord.Embed(
+                    title="❌ Banimento cancelado",
+                    description="A ação foi cancelada pelo moderador.",
+                    color=discord.Color.orange()
+                )
+                await ctx.send(embed=cancel_embed)
+
+        except TimeoutError:
+            timeout_embed = discord.Embed(
+                title="⌛ Tempo esgotado",
+                description="Você não reagiu a tempo. Banimento cancelado automaticamente.",
+                color=discord.Color.greyple()
+            )
+            await ctx.send(embed=timeout_embed)
+        
+
+
     async def cog_command_error(self, ctx, error):
         if ctx.command and ctx.command.cog_name != "Moderação":
             return
