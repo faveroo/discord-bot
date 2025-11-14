@@ -49,6 +49,8 @@ async def on_ready():
         )
     )
 
+    await setup_global_error_handler(bot)
+
     if "ajuda" not in [cmd.name for cmd in bot.commands]:
         bot.all_commands["ajuda"] = bot.all_commands["help"]
 
