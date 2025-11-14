@@ -1,4 +1,5 @@
 import discord
+from embed.default import DefaultEmbed
 from discord.ext import commands
 
 # Ícones para categorias
@@ -16,13 +17,12 @@ CATEGORY_ICONS = {
 class CustomHelp(commands.HelpCommand):
 
     async def send_bot_help(self, mapping):
-        embed = discord.Embed(
+        embed = DefaultEmbed.create(
             title="📘 Menu de Ajuda",
             description=(
                 "Use `!help <comando>` ou `!ajuda <comando>` para detalhes\n"
                 "Use `!help <categoria>` ou `!ajuda <categoria>` para comandos da categoria"
             ),
-            color=discord.Color.blue()
         )
 
         for cog, cmds in mapping.items():
@@ -41,10 +41,9 @@ class CustomHelp(commands.HelpCommand):
         await self.get_destination().send(embed=embed)
 
     async def send_command_help(self, command):
-        embed = discord.Embed(
+        embed = DefaultEmbed.create(
             title=f"ℹ️ Ajuda: `{command.name}`",
             description=command.help or "Sem descrição disponível",
-            color=discord.Color.green()
         )
 
         usage = f"`!{command.name} {command.signature}`".strip()
@@ -57,10 +56,9 @@ class CustomHelp(commands.HelpCommand):
         await self.get_destination().send(embed=embed)
 
     async def send_cog_help(self, cog):
-        embed = discord.Embed(
+        embed = DefaultEmbed.create(
             title=f"📂 Categoria: {cog.qualified_name}",
             description=cog.description or "Sem descrição",
-            color=discord.Color.orange()
         )
 
         for command in cog.get_commands():
@@ -74,10 +72,9 @@ class CustomHelp(commands.HelpCommand):
         await self.get_destination().send(embed=embed)
 
     async def send_group_help(self, group):
-        embed = discord.Embed(
+        embed = DefaultEmbed.create(
             title=f"🔎 Grupo: `{group.name}`",
             description=group.help or "Grupo de comandos",
-            color=discord.Color.teal()
         )
 
         for cmd in group.commands:
