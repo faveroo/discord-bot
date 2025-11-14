@@ -9,7 +9,10 @@ client = AsyncIOMotorClient(mongo_uri)
 
 db = client['economy']
 usuarios = db['usuarios']
+modlog = db['modlog']
 
+
+# ECONOMIA
 async def new_user(usuario):
     filter = {"discord_id": usuario.id}
     existing = await usuarios.count_documents(filter)
@@ -71,3 +74,17 @@ async def set_last_daily(usuario, timestamp):
     filter = {"discord_id": usuario.id}
     update = {"$set": {"last_daily": timestamp}}
     await usuarios.update_one(filter, update)
+
+async def set_modlog(guild_id: int, channel_id: int):
+    """Define ou atualiza o canal de mod-log de um servidor."""
+    await modlog.update_one(
+        {"guild_id": guild_id},
+        {"$set": {"channel_id": channel_id}},
+        upsert=True
+    )
+
+
+async def get_modlog(guild_id: int):
+    """Retorna o ID do canal configurado ou None."""
+    data = await modlog.find_one({"guild_id": guild_id})
+    return data["channel_id"] if data else None
