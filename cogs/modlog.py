@@ -10,20 +10,30 @@ class ModLog(commands.Cog):
         self.log_channels = {} # {guild_id: channel_id}
     
     @commands.has_permissions(manage_guild=True)
-    @commands.command(name="setmodlog", help="Define o canal de log")
+    @commands.command(name="setmodlog", help="Define o canal de log", hidden=True)
     async def set_modlog(self, ctx, channel: discord.TextChannel):
         self.log_channels[ctx.guild.id] = channel.id
-        await ctx.send(f"✅ Mod-log definido com sucesso")
+        embed = success.SuccessEmbed.create(
+            title="✅ Mod-log definido com sucesso"
+        )
+        await ctx.send(embed=embed)
     
     @commands.has_permissions(manage_guild=True)
-    @commands.command(name="showmodlog", help="Mostra o canal configurado para o Mod-log")
+    @commands.command(name="showmodlog", help="Mostra o canal configurado para o Mod-log", hidden=True)
     async def show_modlog(self, ctx):
         channel_id = self.log_channels.get(ctx.guild.id)
         if not channel_id:
-            return await ctx.send("⚠️ Nenhum canal configurado")
+            embed = info.InfoEmbed.create(
+                title="⚠️ Nenhum canal configurado"
+            )
+
+            return await ctx.send(embed=embed)
         
         channel = self.bot.get_channel(channel_id)
-        await ctx.send(f"Canal de log atual: {channel.mention}")
+        embed = default.DefaultEmbed.create(
+            title=f"Canal de log atual: {channel.mention}"
+        )
+        await ctx.send(embed=embed)
         
     async def send_log(self, guild: discord.Guild, embed: discord.Embed):
         """"Envia um embed de log"""
@@ -36,13 +46,23 @@ class ModLog(commands.Cog):
         if channel:
             await channel.send(embed=embed)
     
-    @commands.Cog.listener()
-    async def on_member_remove(self, member):
-        embed = info.InfoEmbed.create(
-            title="👢 Usuário Expulso",
-            description=f"**Usuário:** {member} - {member.id}"
-        )
-        await self.send_log(member.guild, embed)
+
+    async def cog_command_error(self, ctx, error):
+        if ctx.command and ctx.command.cog_name != "ModLog":
+            return
+
+        traducao = {
+            "Manage Guild": "Gerenciar Guilda/Servidor",
+
+        }
+
+        if isinstance(error, commands.MissingPermissions):
+            permissoes = [perm.replace('_', ' ').title() for perm in error.missing_permissions]
+            lista = ', '.join(traducao.get(p, p) for p in permissoes)
+            await ctx.send(f"🚫 Você precisa das permissões: **{lista}** para usar este comando.")       
+        else:
+            print("aqui")
+            raise error
         
 async def setup(bot):
     await bot.add_cog(ModLog(bot))
