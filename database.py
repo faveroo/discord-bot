@@ -83,8 +83,17 @@ async def set_modlog(guild_id: int, channel_id: int):
         upsert=True
     )
 
-
 async def get_modlog(guild_id: int):
     """Retorna o ID do canal configurado ou None."""
     data = await modlog.find_one({"guild_id": guild_id})
     return data["channel_id"] if data else None
+
+async def reset_economia(valor=150):
+    """
+    Reseta a economia de todos os usuários para 'valor'.
+    """
+    resultado = await usuarios.update_many(
+        {},  # filtro vazio = todos os usuários
+        {"$set": {"saldo": valor}}
+    )
+    return resultado.modified_count
