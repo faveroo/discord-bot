@@ -34,7 +34,46 @@ class ModLog(commands.Cog):
             title=f"Canal de log atual: {channel.mention}"
         )
         await ctx.send(embed=embed)
-        
+
+    @commands.has_permissions(manage_guild=True)
+    @commands.command(name="createlog", help="Cria um canal de log", hidden=True)
+    async def create_modlog_cmd(self, ctx, category: str, name: str = "mod-log"):
+
+        category_obj = discord.utils.get(ctx.guild.categories, name=category)
+
+        everyone = ctx.guild.default_role
+
+        overwrites = {
+            everyone: discord.PermissionOverwrite(send_messages=False, add_reactions=False),
+            ctx.guild.me: discord.PermissionOverwrite(send_messages=True)
+        }
+
+        if category_obj is None:
+            category_obj = await ctx.guild.create_category(name=category)
+
+        await ctx.guild.fetch_channels()
+
+        try:
+            created = await ctx.guild.create_text_channel(
+                name=name,
+                category=category_obj,
+                overwrites=overwrites,
+                topic="Canal de logs",
+                reason="Criando canal via bot"
+            )
+        except Exception as e:
+            return await ctx.send(f"❌ Erro ao criar o canal: `{e}`")
+
+        if created:
+
+            set_modlog(ctx.guild.id, created.id)
+
+            embed = success.SuccessEmbed.create(
+                title="✅ Chat criado com sucesso"
+            )
+            await ctx.send(embed=embed)
+
+
     async def send_log(self, guild: discord.Guild, embed: discord.Embed):
         """"Envia um embed de log"""
         channel_id = await get_modlog(guild.id)
