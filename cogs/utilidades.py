@@ -133,7 +133,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
         if escolha == bot_escolha:
             embed = default.DefaultEmbed.create(
                 title="🤝 Empate!",
-                description=f"{escolha} x {bot_escolha}\nNinguém ganha ou perde moedas."
+                description=f"{b_emoji[escolha]} x {b_emoji[bot_escolha]}\nNinguém ganha ou perde moedas."
             )
         elif (escolha == "pedra" and bot_escolha == "tesoura") or \
              (escolha == "papel" and bot_escolha == "pedra") or \
@@ -147,7 +147,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
             await update_currency(ctx.author, -amount)
             embed = error.ErrorEmbed.create(
                 title="😞 Você Perdeu!",
-                description=f"{escolha} x {bot_escolha}\nVocê perdeu {amount} moedas. Tente novamente!"
+                description=f"{b_emoji[escolha]} x {b_emoji[bot_escolha]}\nVocê perdeu {amount} moedas. Tente novamente!"
             )
         await ctx.send(embed=embed)
     
