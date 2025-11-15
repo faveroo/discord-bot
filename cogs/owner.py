@@ -20,6 +20,18 @@ class Owner(commands.Cog, name="Owner"):
         )
         await ctx.send(embed=embed)
 
+    @commands.is_owner()
+    @commands.command(name="reseteconomy", help="reseta saldo global", hidden=True)
+    async def reset_economy(self, ctx):
+        from database import reset_economia
+
+        modificados = await reset_economia(150)
+
+        await ctx.send(
+            f"🔄 Economia resetada com sucesso!\n"
+            f"💰 **{modificados} usuários** agora possuem **150 moedas**."
+        )
+
     async def cog_command_error(self, ctx, error):
         if isinstance(error, commands.NotOwner):
             await ctx.send("🚫 Apenas o dono do bot pode usar este comando.")
