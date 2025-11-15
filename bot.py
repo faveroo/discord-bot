@@ -18,7 +18,8 @@ COGS = [
     'cogs.utilidades',
     'cogs.economy',
     'cogs.moderation',
-    'cogs.modlog'
+    'cogs.modlog',
+    'cogs.owner'
 ]
 
 intents = discord.Intents.default()
