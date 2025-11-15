@@ -1,4 +1,5 @@
 import discord
+import asyncio
 from discord.ext import commands
 from embed import success, error, default, info
 
@@ -75,6 +76,13 @@ class Moderation(commands.Cog, name="Moderação"):
                 )
                 await ctx.send(embed=confirm_embed)
 
+                if self.modlog:
+                    embed = info.InfoEmbed.create(
+                        title="👢 Usuário Banido",
+                        description=f"**Moderador:** {ctx.author}\n**Usuário:** {member}\n**Motivo:** {reason}"
+                    )
+                    await self.modlog.send_log(ctx.guild, embed)
+
             else:
                 cancel_embed = discord.Embed(
                     title="❌ Banimento cancelado",
@@ -89,7 +97,64 @@ class Moderation(commands.Cog, name="Moderação"):
                 description="Você não reagiu a tempo. Banimento cancelado automaticamente.",
                 color=discord.Color.greyple()
             )
-            await ctx.send(embed=timeout_embed)
         
+            await ctx.send(embed=timeout_embed)
+    
+    @commands.command(name="mute", help="Muta um membro por determinado tempo", aliases=["m"])
+    @commands.has_permissions(manage_roles=True)
+    async def mute(self, ctx, member: discord.Member, time=10, *, reason):
+        guild = ctx.guild
+
+        muted_role = discord.utils.get(guild.roles, name="muted")
+        self.muted_role = muted_role
+
+        if not muted_role:
+            muted_role = await guild.create_role(name="muted")
+
+            for channel in guild.channels:
+                try:
+                    await channel.set_permissions(muted_role, send_messages=False, speak=False, add_reactions=False)
+                except:
+                    pass
+        
+        await member.add_roles(muted_role, reason=reason)
+        if self.modlog:
+                    embed = info.InfoEmbed.create(
+                        title="👢 Usuário Mutado",
+                        description=f"**Moderador:** {ctx.author}\n**Usuário:** {member}\n**Tempo:** {time} Minutos\n**Motivo:** {reason}"
+                    )
+                    embed.set_thumbnail(url=member.avatar.url)
+                    await self.modlog.send_log(ctx.guild, embed)
+
+        await asyncio.sleep(time*60)
+
+        if muted_role in member.roles:
+            await member.remove_roles(muted_role)
+
+            embed = info.InfoEmbed.create(
+                title=f"{member} foi desmutado"
+            )
+            embed.set_thumbnail(url=member.avatar.url)
+
+            return await self.modlog.send_log(ctx.guild, embed)
+
+    @commands.command(name="unmute", help="Desmuta um usuário mutado", aliases=["desmutar"])
+    @commands.has_permissions(manage_roles=True)
+    async def unmute(self, ctx, member: discord.Member):
+
+        if self.muted_role in member.roles:
+            await member.remove_roles(self.muted_role)
+
+            embed = info.InfoEmbed.create(
+                title=f"{member} foi desmutado", 
+                description="Se comporte para não ser mutado novamente 😡"
+            )
+            embed.set_thumbnail(url=member.avatar.url)
+            await self.modlog.send_log(ctx.guild, embed)
+
+            return await ctx.send(f"{member} foi desmutado")
+        
+        return await ctx.send(f"{member} não está mutado")
+
 async def setup(bot):
     await bot.add_cog(Moderation(bot))
