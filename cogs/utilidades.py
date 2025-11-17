@@ -185,7 +185,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
         embed.set_image(url=avatar_banner_url)
         await ctx.send(embed=embed)
 
-    @commands.command(name="dicio", description="Mostra o significado de uma palavra")
+    @commands.command(name="dicio", help="Mostra o significado de uma palavra", aliases=["dicionario", "search"])
     async def dicio(self, ctx, *, palavra: str):
         async with aiohttp.ClientSession() as session:
             search_url = f"https://www.dicio.com.br/pesquisa.php?q={quote(palavra)}"
@@ -203,10 +203,8 @@ class Utilidades(commands.Cog, name="Utilidades"):
                 return await ctx.send(content="❌ Palavra não encontrada.")
             
             link = first_li.find("a", class_="_sugg")["href"]
-            
-            async with aiohttp.ClientSession() as session:
-                async with session.get("https://www.dicio.com.br" + link) as resp:
-                    html = await resp.text()
+            async with session.get("https://www.dicio.com.br" + link) as resp:
+                html = await resp.text()
 
             soup = BeautifulSoup(html, "html.parser")
             
@@ -229,7 +227,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
             )
             embed.add_field(name="🖋 Exemplo", value=frase, inline=False)
 
-            return await ctx.send(embed=embed)
+            await ctx.send(embed=embed)
 
 async def setup(bot):
     print(f"⚙️ Configurando cog Utilidades...")
