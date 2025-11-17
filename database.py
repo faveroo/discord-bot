@@ -114,3 +114,12 @@ async def get_localizacao(usuario):
     if data and "cidade" in data:
         return data["cidade"]
     return None
+
+async def remove_localizacao(usuario):
+    filter = {"discord_id": usuario.id}
+
+    update = {"$unset": {"cidade": ""}}
+
+    result = await usuarios.update_one(filter, update)
+
+    return result.modified_count > 0
