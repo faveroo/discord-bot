@@ -5,7 +5,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 mongo_uri = os.getenv("MONGO_URI")
-client = AsyncIOMotorClient(mongo_uri)
+client = AsyncIOMotorClient(mongo_uri, tls=True, tlsAllowInvalidCertificates=False)
+
 
 db = client["economy"]
 usuarios = db["usuarios"]
