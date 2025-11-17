@@ -228,10 +228,15 @@ class Utilidades(commands.Cog, name="Utilidades"):
             await ctx.send(embed=embed)
 
     
-    @commands.command(name="setlocalizacao", help="Define sua cidade/localização para comandos futuros")
+    @commands.command(name="setlocal", help="Define sua cidade/localização para comandos futuros")
     async def set_localizacao(self, ctx, *, cidade: str):
         await set_localizacao(ctx.author, cidade)
         await ctx.send(f"✅ Localização de {ctx.author.mention} definida como: **{cidade}**")
+        
+    @commands.command(name="getlocal", help="Mostra o local difinido pelo usuário")
+    async def get_localizacao(self, ctx):
+        loc = get_localizacao(ctx.author)
+        await ctx.send(f"Localização de {ctx.author.mentio}")
     
     @commands.command(name="temperatura", help="Mostra a temperatura de um local em ºC", aliases=["temp", "temperature", "openWeather"])
     async def temperatura(self, ctx, *, local: str):
