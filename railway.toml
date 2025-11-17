@@ -1,5 +1,5 @@
 [build]
-builder = "heroku/buildpacks:20"
+builder = "python:3.11"
 
-[env]
-PYTHON_VERSION = "3.12.3"
+[start]
+cmd = "python bot.py"
