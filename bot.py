@@ -27,7 +27,9 @@ intents.message_content = True
 intents.guilds = True
 intents.members = True
 intents.reactions = True  
-intents.messages = True 
+intents.messages = True
+intents.bans = True
+intents.guild_messages = True
 
 help_cmd = CustomHelp()
 help_cmd.aliases = ['ajuda']
