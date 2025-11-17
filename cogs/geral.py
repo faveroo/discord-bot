@@ -16,7 +16,7 @@ class Geral(commands.Cog, name="Geral"):
 
     @commands.command(help="Marca everyone")
     async def todos(self, ctx):
-        await ctx.send("@everyone 👋")
+        await ctx.send("Bom dia @everyone 👋")
 
     @app_commands.command(name="number", description="Responde com um número aleatório")
     async def number(self, interaction: discord.Interaction):

@@ -1,5 +1,6 @@
 import discord
 import asyncio
+from typing import Union
 from discord.ext import commands
 from embed import success, error, default, info
 
@@ -42,7 +43,19 @@ class Moderation(commands.Cog, name="Moderação"):
     
     @commands.command(name="ban", help="Bane um membro do servidor", aliases = ["banir", "b"])
     @commands.has_permissions(ban_members=True)
-    async def ban(self, ctx, member: discord.Member, *, reason: str):
+    async def ban(self, ctx, member: Union[discord.Member, discord.User, int], *, reason: str):
+        if isinstance(member, int):
+            try:
+                member = await self.bot.fetch_user(member)
+            except:
+                return await ctx.send("❌ Não consegui encontrar um usuário com esse ID.")
+
+        elif isinstance(member, discord.User):
+            pass
+
+        elif isinstance(member, discord.Member):
+            pass
+
         embed = info.InfoEmbed.create(
             title="🚨 Confirmação de banimento",
             description=f"Tem certeza que deseja banir o membro {member.mention}?"
@@ -68,7 +81,7 @@ class Moderation(commands.Cog, name="Moderação"):
             reaction, user = await self.bot.wait_for("reaction_add", timeout=30.0, check=check)
 
             if str(reaction.emoji) == "✅":
-                await member.ban(reason=reason)
+                await ctx.guild.ban(member, reason=reason)
                 confirm_embed = discord.Embed(
                     title="✅ Banimento efetuado",
                     description=f"{member.mention} foi banido com sucesso.",
@@ -101,7 +114,7 @@ class Moderation(commands.Cog, name="Moderação"):
             await ctx.send(embed=timeout_embed)
     
     @commands.command(name="mute", help="Muta um membro por determinado tempo", aliases=["m"])
-    @commands.has_permissions(manage_roles=True)
+    @commands.has_permissions(manage_roles=True, mute_members=True)
     async def mute(self, ctx, member: discord.Member, time=10, *, reason):
         guild = ctx.guild
 
@@ -139,7 +152,7 @@ class Moderation(commands.Cog, name="Moderação"):
             return await self.modlog.send_log(ctx.guild, embed)
 
     @commands.command(name="unmute", help="Desmuta um usuário mutado", aliases=["desmutar"])
-    @commands.has_permissions(manage_roles=True)
+    @commands.has_permissions(manage_roles=True, mute_members=True)
     async def unmute(self, ctx, member: discord.Member):
 
         if self.muted_role in member.roles:
@@ -156,5 +169,24 @@ class Moderation(commands.Cog, name="Moderação"):
         
         return await ctx.send(f"{member} não está mutado")
 
+    @commands.command(name="unban", help="Desbane um usuário banido do servidor", aliases=["desbanir"])
+    @commands.has_permissions(ban_members=True)
+    async def unban(self, ctx, *, user_id):
+        try:
+            user = await ctx.bot.fetch_user(user_id)
+            await ctx.guild.unban(user)
+            await ctx.send(f"{user} foi desbanido!")
+            embed = default.DefaultEmbed.create(
+                title=f"{user} foi desbanido",
+                description=f"**Responsável:** {ctx.author}"
+            )
+            return await self.modlog.send_log(ctx.guild, embed)
+        except discord.NotFound:
+            await ctx.send("Esse usuário não está banido.")
+        except Exception as e:
+            await ctx.send(f"Erro: {e}")
+
+        
+                      
 async def setup(bot):
     await bot.add_cog(Moderation(bot))
