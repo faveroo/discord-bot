@@ -189,4 +189,4 @@ class Moderation(commands.Cog, name="Moderação"):
         
                       
 async def setup(bot):
-    await bot.add_cog(Moderation(bot))
+    print(f"✅ Cog Moderação adicionado com sucesso!")

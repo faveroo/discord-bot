@@ -89,8 +89,6 @@ async def on_ready():
 async def ping(interaction: discord.Interaction):
     await interaction.response.send_message("🏓 Pong!")
 
-
-
 # ------------------------------------------------
 # Inicia o bot
 # ------------------------------------------------

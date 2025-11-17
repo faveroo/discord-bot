@@ -42,5 +42,6 @@ class Geral(commands.Cog, name="Geral"):
         
         embed.set_footer(text=f"{date.today().year} Rodolfo Bot ©")
         await ctx.send(embed=embed)
+        
 async def setup(bot):
-    await bot.add_cog(Geral(bot))
+    print(f"✅ Cog Geral adicionado com sucesso!")
