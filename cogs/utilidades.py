@@ -152,16 +152,34 @@ class Utilidades(commands.Cog, name="Utilidades"):
         await ctx.send(embed=embed)
     
     @commands.command(name="avatar", help="Exibe o avatar do usuário", aliases=["icon", "pfp"])
-    async def avatar(self, ctx, member: discord.Member = None):
-        if not member:
-            member = ctx.author
+    async def avatar(self, ctx, user: discord.User = None):
+        if not user:
+            user = ctx.author
         
-        avatar_url = member.avatar.url if member.avatar else member.default_avatar.url
+        avatar_url = user.avatar.url if user.avatar else user.default_avatar.url
 
         embed = default.DefaultEmbed.create(
-            title=f"Avatar de {member}"
+            title=f"Avatar de {user}"
         )
         embed.set_image(url=avatar_url)
+        await ctx.send(embed=embed)
+
+    @commands.command(name="banner", help="Exibe o banner do usuário", aliases=["header"])
+    async def banner(self, ctx, user: discord.User = None):
+        if not user:
+            user = ctx.author
+        
+        user = await ctx.bot.fetch_user(user.id)
+
+        if user.banner is None:
+            return await ctx.send(f"{user.mention} não possui um banner definido!")
+
+        avatar_banner_url = user.banner.url 
+
+        embed = default.DefaultEmbed.create(
+            title=f"Banner de {user}"
+        )
+        embed.set_image(url=avatar_banner_url)
         await ctx.send(embed=embed)
 
 
