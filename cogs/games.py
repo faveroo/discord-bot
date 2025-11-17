@@ -24,67 +24,29 @@ class Games(commands.Cog, name="Jogos"):
         country = random.choice(list(capitals.keys()))
         capital = capitals[country]['capital']
         
-        self.games[ctx.channel.id] = {
-        "country": country,
-        "capital": capital,
-        "players": set()
-    }
+        await ctx.send(f"🌍 **Quiz de Capitais!**\nQual é a capital de **{country}**?\n⏱️ Você(s) têm **30 segundos**!")
 
+        def check(msg):
+            # qualquer pessoa no mesmo canal pode responder
+            return msg.channel == ctx.channel
 
-        embed = default.DefaultEmbed.create(
-            title="🗺️ Jogo da Capital",
-            description=f"Adivinhe a capital do país abaixo:\n\n**{country}**"
-            )
-        embed.set_footer(text="Digite 'cancelar' para parar o jogo.")
-        await ctx.send(embed=embed)
+        try:
+            # Loop de tentativas dentro de um timeout
+            while True:
+                msg = await self.bot.wait_for(
+                    "message",
+                    timeout=30.0,   # tempo total
+                    check=check
+                )
 
-        async def fechar_jogo():
-            await asyncio.sleep(30)
-            if ctx.channel.id in self.games:
-                capital = self.games[ctx.channel.id]["capital"]
-                await ctx.send(f"⏰ Tempo esgotado! A capital era **{capital}**.")
-                del self.games[ctx.channel.id]
+                # Verifica resposta correta
+                if normalize(msg.content) == normalize(capital):
+                    await ctx.send(f"🎉 Parabéns {msg.author.mention}! **{capital}** está correto!")
+                    break
 
-        asyncio.create_task(fechar_jogo())
-
-    @commands.Cog.listener()
-    async def on_message(self, message):
-        if message.author.bot:
-            return
-
-        await self.bot.process_commands(message)
-
-        channel_id = message.channel.id
-    
-
-        if channel_id not in self.games:
-            return
-
-        game = self.games[channel_id]
-        resposta = message.content.lower().strip()
-
-        if resposta == "cancelar":
-            await message.channel.send("❎ O jogo foi cancelado.")
-            del self.games[channel_id]
-            return
-
-        if normalize(resposta) == normalize(game["capital"]):
-            country = game["country"]
-            capital = game["capital"]
-
-            if message.author.id not in game["players"]:
-                from database import update_currency
-                await update_currency(message.author, 50)
-                game["players"].add(message.author.id)
-
-            await message.channel.send(
-                f"🎉 {message.author.mention} acertou! A capital de **{country}** é **{capital}**!"
-            )
-            
-            # ENCERRA o jogo
-            del self.games[channel_id]
-        else:
-            await message.channel.send("Tente novamente")
+        except asyncio.TimeoutError:
+            # Ninguém acertou em 30 segundos
+            await ctx.send(f"⏰ Tempo esgotado! A capital de **{country}** é **{capital}**.")
 
 async def setup(bot):
     print(f"⚙️ Configurando cog Games...")
