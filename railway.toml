@@ -1,5 +1,5 @@
 [build]
-nixpacks = true
+builder = "nixpacks"
 
 [deploy]
 startCommand = "python bot.py"
