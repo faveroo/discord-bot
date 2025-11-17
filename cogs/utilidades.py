@@ -239,7 +239,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
         await ctx.send(f"Localização de {ctx.author.mention} é {loc}")
     
     @commands.command(name="temperatura", help="Mostra a temperatura de um local em ºC", aliases=["temp", "temperature", "openWeather"])
-    async def temperatura(self, ctx, *, local: str):
+    async def temperatura(self, ctx, *, local: str = None):
         if not local:
             local = await get_localizacao(ctx.author)
             if not local:
