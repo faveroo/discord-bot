@@ -229,14 +229,14 @@ class Utilidades(commands.Cog, name="Utilidades"):
 
     
     @commands.command(name="setlocal", help="Define sua cidade/localização para comandos futuros")
-    async def set_localizacao(self, ctx, *, cidade: str):
+    async def set_local(self, ctx, *, cidade: str):
         await set_localizacao(ctx.author, cidade)
         await ctx.send(f"✅ Localização de {ctx.author.mention} definida como: **{cidade}**")
         
     @commands.command(name="getlocal", help="Mostra o local difinido pelo usuário")
-    async def get_localizacao(self, ctx):
+    async def get_local(self, ctx):
         loc = await get_localizacao(ctx.author)
-        await ctx.send(f"Localização de {ctx.author.mentio}")
+        await ctx.send(f"Localização de {ctx.author.mentio} é {loc}")
     
     @commands.command(name="temperatura", help="Mostra a temperatura de um local em ºC", aliases=["temp", "temperature", "openWeather"])
     async def temperatura(self, ctx, *, local: str):
@@ -252,7 +252,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
             try:
                 resp = await client.get(geo_url)
                 resp.raise_for_status()
-                geo_data = await resp.json()
+                geo_data = resp.json()
             except httpx.HTTPStatusError:
                 return await ctx.send(f"❌ Não foi possível encontrar informações para **{local}**.")
             except Exception as e:
@@ -269,7 +269,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
             try:
                 weather_resp = await client.get(weather_url)
                 weather_resp.raise_for_status()
-                weather_data = await weather_resp.json()
+                weather_data = weather_resp.json()
             except Exception as e:
                 return await ctx.send(f"❌ Erro ao buscar clima: {e}")
 
