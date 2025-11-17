@@ -2,11 +2,14 @@ import json
 import random
 import asyncio
 import httpx
+import aiohttp
 import os
 import discord
+from bs4 import BeautifulSoup
 from embed import error, success, default
 from deep_translator import GoogleTranslator
 from discord.ext import commands
+from urllib.parse import quote
 from dotenv import load_dotenv
 
 class Utilidades(commands.Cog, name="Utilidades"):
@@ -182,6 +185,51 @@ class Utilidades(commands.Cog, name="Utilidades"):
         embed.set_image(url=avatar_banner_url)
         await ctx.send(embed=embed)
 
+    @commands.command(name="dicio", description="Mostra o significado de uma palavra")
+    async def dicio(self, ctx, *, palavra: str):
+        async with aiohttp.ClientSession() as session:
+            search_url = f"https://www.dicio.com.br/pesquisa.php?q={quote(palavra)}"
+            async with session.get(search_url) as resp:
+                if resp.status == 404:
+                    return await ctx.send(content="❌ Palavra não encontrada.")
+                html = await resp.text()
+                
+        soup = BeautifulSoup(html, "html.parser")
+        
+        resultados = soup.find("ul", class_="resultados")
+        if resultados:
+            first_li = resultados.find("li")
+            if not first_li:
+                return await ctx.send(content="❌ Palavra não encontrada.")
+            
+            link = first_li.find("a", class_="_sugg")["href"]
+            
+            async with aiohttp.ClientSession() as session:
+                async with session.get("https://www.dicio.com.br" + link) as resp:
+                    html = await resp.text()
+
+            soup = BeautifulSoup(html, "html.parser")
+            
+            description = soup.select_one("p.significado")
+            if description is None or description.text.startswith("Ainda não temos o significado"):
+                return await ctx.send(content="❌ Palavra não encontrada.")
+
+            word_title = soup.find("h1").text
+            spans = description.find_all("span")
+            tipo = spans[0].text if len(spans) >= 1 else ""
+            significado = spans[1].text if len(spans) >= 2 else description.text
+
+            frase_tag = soup.find(class_="frase")
+            frase = frase_tag.text.strip() if frase_tag else "Nenhum exemplo encontrado."
+
+            embed = discord.Embed(
+                title=f"📘 {word_title}",
+                description=f"*{tipo}*\n{significado}",
+                color=discord.Color.from_rgb(25, 89, 132)
+            )
+            embed.add_field(name="🖋 Exemplo", value=frase, inline=False)
+
+            return await ctx.send(embed=embed)
 
 async def setup(bot):
     print(f"⚙️ Configurando cog Utilidades...")
