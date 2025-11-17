@@ -36,3 +36,6 @@ async def setup_global_error_handler(bot):
                 description=f"Verifique os comandos com `{ctx.prefix}help`.",
             )
             await ctx.send(embed=embed) 
+        else:
+            await ctx.send(f"❌ Ocorreu um erro inesperado: `{error}`")
+            raise error

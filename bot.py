@@ -52,8 +52,6 @@ async def on_ready():
         )
     )
 
-    await setup_global_error_handler(bot)
-
     # Registra alias do help
     if "ajuda" not in [cmd.name for cmd in bot.commands]:
         bot.all_commands["ajuda"] = bot.all_commands["help"]
@@ -87,7 +85,8 @@ async def main():
             print(f"✅ Cog {cog} carregado com sucesso!")
         except Exception as e:
             print(f"❌ Erro ao carregar {cog}: {e}")
-
+            
+    await setup_global_error_handler(bot)
     await bot.start(token)
 
 

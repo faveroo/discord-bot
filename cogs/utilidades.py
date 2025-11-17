@@ -236,7 +236,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
     @commands.command(name="getlocal", help="Mostra o local difinido pelo usuário")
     async def get_local(self, ctx):
         loc = await get_localizacao(ctx.author)
-        await ctx.send(f"Localização de {ctx.author.mentio} é {loc}")
+        await ctx.send(f"Localização de {ctx.author.mention} é {loc}")
     
     @commands.command(name="temperatura", help="Mostra a temperatura de um local em ºC", aliases=["temp", "temperature", "openWeather"])
     async def temperatura(self, ctx, *, local: str):
