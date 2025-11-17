@@ -194,20 +194,19 @@ class Utilidades(commands.Cog, name="Utilidades"):
                     return await ctx.send(content="❌ Palavra não encontrada.")
                 html = await resp.text()
                 
-        soup = BeautifulSoup(html, "html.parser")
-        
-        resultados = soup.find("ul", class_="resultados")
-        if resultados:
-            first_li = resultados.find("li")
-            if not first_li:
-                return await ctx.send(content="❌ Palavra não encontrada.")
-            
-            link = first_li.find("a", class_="_sugg")["href"]
-            async with session.get("https://www.dicio.com.br" + link) as resp:
-                html = await resp.text()
-
             soup = BeautifulSoup(html, "html.parser")
             
+            resultados = soup.find("ul", class_="resultados")
+            if resultados:
+                first_li = resultados.find("li")
+                if not first_li:
+                    return await ctx.send(content="❌ Palavra não encontrada.")
+                link = first_li.find("a", class_="_sugg")["href"]
+                
+                async with session.get("https://www.dicio.com.br" + link) as resp:
+                    html = await resp.text()
+                soup = BeautifulSoup(html, "html.parser")
+                
             description = soup.select_one("p.significado")
             if description is None or description.text.startswith("Ainda não temos o significado"):
                 return await ctx.send(content="❌ Palavra não encontrada.")
