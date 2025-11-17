@@ -5,7 +5,7 @@ import httpx
 import aiohttp
 import os
 import discord
-from database import set_localizacao, get_localizacao
+from database import set_localizacao, get_localizacao, remove_localizacao
 from bs4 import BeautifulSoup
 from embed import error, success, default
 from deep_translator import GoogleTranslator
@@ -103,7 +103,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
             )
             await ctx.send(embed=embed)
 
-    @ver.command(help="Mostra a moeda de um país")
+    @ver.command(name="moeda", help="Mostra a moeda de um país")
     async def moeda(self, ctx, *, pais: str):
         """Mostra a moeda de um país"""
         with open('json/capitais.json', 'r', encoding='utf-8') as f:
@@ -212,7 +212,8 @@ class Utilidades(commands.Cog, name="Utilidades"):
             if description is None or description.text.startswith("Ainda não temos o significado"):
                 return await ctx.send(content="❌ Palavra não encontrada.")
 
-            word_title = soup.find("h1").text
+            h1 = soup.find("h1")
+            word_title = "".join(h1.find_all(string=True, recursive=False)).strip()
             spans = description.find_all("span")
             significado = spans[1].text if len(spans) >= 2 else description.text
 
@@ -220,24 +221,54 @@ class Utilidades(commands.Cog, name="Utilidades"):
             frase = frase_tag.text.strip() if frase_tag else "Nenhum exemplo encontrado."
 
             embed = default.DefaultEmbed.create(
-                title=f"📘{word_title}",
+                title=f"📘 Definição de {word_title.capitalize()}",
                 description=f"{significado}",
             )
-            embed.add_field(name="Exemplo: ", value=frase, inline=False)
+            embed.add_field(name="Exemplo: ", value=frase, inline=True)
 
             await ctx.send(embed=embed)
 
-    
-    @commands.command(name="setlocal", help="Define sua cidade/localização para comandos futuros")
+    @commands.group(help="Grupo com relação comandos local")
+    async def local(self, ctx):
+        """Comandos para definir, ver ou excluir o local"""
+        if ctx.invoked_subcommand is None:
+            await ctx.send("Digite !help local para saber mais!")
+
+    @local.command(name="set", help="Define sua cidade/localização para comandos futuros")
     async def set_local(self, ctx, *, cidade: str):
         await set_localizacao(ctx.author, cidade)
+        embed = success.SuccessEmbed.create(
+            title="Localização definida com sucesso",
+            description=f"{ctx.author.mention} sua localização foi definida como **{cidade}**"
+        )
         await ctx.send(f"✅ Localização de {ctx.author.mention} definida como: **{cidade}**")
         
-    @commands.command(name="getlocal", help="Mostra o local difinido pelo usuário")
+    @local.command(name="get", help="Mostra o local difinido pelo usuário")
     async def get_local(self, ctx):
         loc = await get_localizacao(ctx.author)
-        await ctx.send(f"Localização de {ctx.author.mention} é {loc}")
+        embed = default.DefaultEmbed.create(
+            title="Localização do Usuário",
+            description=f"**Localização:** {loc}"
+        )
+
+        await ctx.send(embed=embed)
     
+    @local.command(name="remove", help="Remove o local definido")
+    async def remove_local(self, ctx):
+        loc = await get_localizacao(ctx.author)
+
+        if not loc:
+            embed = error.ErrorEmbed.create(
+                title="❌ Você não possui local definido"
+            )
+            return await ctx.send(embed=embed)
+        
+        if await remove_localizacao(ctx.author):
+            embed = success.SuccessEmbed.create(
+                title="✅ Localização removida com sucesso"
+            )
+            return await ctx.send(embed=embed)
+
     @commands.command(name="temperatura", help="Mostra a temperatura de um local em ºC", aliases=["temp", "temperature", "openWeather"])
     async def temperatura(self, ctx, *, local: str = None):
         if not local:
@@ -246,7 +277,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
                 return await ctx.send("Use !setlocalizacao para definir seu local ou especifique ao executar o comando")
         load_dotenv()
         weather = os.getenv("WEATHER_KEY")
-        geo_url = f"http://api.openweathermap.org/geo/1.0/direct?q={local}&limit={1}&appid={weather}"
+        geo_url = f"http://api.openweathermap.org/geo/1.0/direct?q={quote(local)}&limit={1}&appid={weather}"
 
         async with httpx.AsyncClient() as client:
             try:
