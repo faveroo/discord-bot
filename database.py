@@ -97,3 +97,20 @@ async def get_modlog(guild_id: int):
 async def reset_economia(valor=150):
     resultado = await usuarios.update_many({}, {"$set": {"saldo": valor}})
     return resultado.modified_count
+
+# UTILIDADES 
+async def set_localizacao(usuario, cidade: str):
+    await new_user(usuario)
+    
+    cidade = cidade.strip().title()
+    await usuarios.update_one(
+        {"discord_id": usuario.id},
+        {"$set": {"cidade": cidade}},
+        upsert=True
+    )
+
+async def get_localizacao(usuario):
+    data = await usuarios.find_one({"discord_id": usuario.id})
+    if data and "cidade" in data:
+        return data["cidade"]
+    return None
