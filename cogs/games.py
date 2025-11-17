@@ -53,8 +53,7 @@ class Games(commands.Cog, name="Jogos"):
             return
 
         channel_id = message.channel.id
-        
-        await self.bot.process_commands(message)
+    
 
         # se não há jogo nesse canal, ignorar
         if channel_id not in self.games:
@@ -83,9 +82,11 @@ class Games(commands.Cog, name="Jogos"):
             await message.channel.send(
                 f"🎉 {message.author.mention} acertou! A capital de **{country}** é **{capital}**!"
             )
-
+        else:
+            await message.channel.send("Tente novamente")
             # ENCERRA o jogo
-            del self.games[channel_id]
+        await self.bot.process_commands(message)
+        del self.games[channel_id]
 
 async def setup(bot):
     print(f"⚙️ Configurando cog Games...")
