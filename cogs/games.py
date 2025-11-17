@@ -26,7 +26,7 @@ class Games(commands.Cog, name="Jogos"):
         
         self.games[ctx.channel.id] = {
         "country": country,
-        "capital": capital.lower(),
+        "capital": capital,
         "players": set()
     }
 
@@ -52,28 +52,26 @@ class Games(commands.Cog, name="Jogos"):
         if message.author.bot:
             return
 
+        await self.bot.process_commands(message)
+
         channel_id = message.channel.id
     
 
-        # se não há jogo nesse canal, ignorar
         if channel_id not in self.games:
             return
 
         game = self.games[channel_id]
         resposta = message.content.lower().strip()
 
-        # cancelar
         if resposta == "cancelar":
             await message.channel.send("❎ O jogo foi cancelado.")
             del self.games[channel_id]
             return
 
-        # resposta correta
         if normalize(resposta) == normalize(game["capital"]):
             country = game["country"]
             capital = game["capital"]
 
-            # evita dar recompensa duplicada
             if message.author.id not in game["players"]:
                 from database import update_currency
                 await update_currency(message.author, 50)
@@ -82,11 +80,11 @@ class Games(commands.Cog, name="Jogos"):
             await message.channel.send(
                 f"🎉 {message.author.mention} acertou! A capital de **{country}** é **{capital}**!"
             )
+            
+            # ENCERRA o jogo
+            del self.games[channel_id]
         else:
             await message.channel.send("Tente novamente")
-            # ENCERRA o jogo
-        await self.bot.process_commands(message)
-        del self.games[channel_id]
 
 async def setup(bot):
     print(f"⚙️ Configurando cog Games...")
