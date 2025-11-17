@@ -44,4 +44,4 @@ class Geral(commands.Cog, name="Geral"):
         await ctx.send(embed=embed)
         
 async def setup(bot):
-    print(f"✅ Cog Geral adicionado com sucesso!")
+    await bot.add_cog(Geral(bot))

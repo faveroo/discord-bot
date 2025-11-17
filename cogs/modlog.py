@@ -87,4 +87,4 @@ class ModLog(commands.Cog):
     
         
 async def setup(bot):
-    print(f"✅ Cog ModLog adicionado com sucesso!")
+    await bot.add_cog(ModLog(bot))

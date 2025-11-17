@@ -87,4 +87,6 @@ class Games(commands.Cog, name="Jogos"):
             await message.channel.send("Tente novamente")
 
 async def setup(bot):
-    print(f"✅ Cog Jogos adicionado com sucesso!")
+    print(f"⚙️ Configurando cog Games...")
+    await bot.add_cog(Games(bot))
+    print(f"✅ Cog Games adicionado com sucesso!")

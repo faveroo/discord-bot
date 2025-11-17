@@ -39,4 +39,4 @@ class Owner(commands.Cog, name="Owner"):
             raise error
 
 async def setup(bot):
-    print(f"✅ Cog Dono adicionado com sucesso!")
+    await bot.add_cog(Owner(bot))

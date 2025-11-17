@@ -132,4 +132,4 @@ class Economy(commands.Cog, name="Economia"):
         await ctx.send(embed=embed)
         
 async def setup(bot):
-    print(f"✅ Cog Economia adicionado com sucesso!")
+    await bot.add_cog(Economy(bot))

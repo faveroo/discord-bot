@@ -39,4 +39,4 @@ class Diversao(commands.Cog, name="Diversão"):
         await ctx.send(f"😂 {pergunta}\n -{resposta}")
 
 async def setup(bot):
-    print(f"✅ Cog Diversão adicionado com sucesso!")
+    await bot.add_cog(Diversao(bot))

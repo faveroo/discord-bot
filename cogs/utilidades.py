@@ -184,4 +184,6 @@ class Utilidades(commands.Cog, name="Utilidades"):
 
 
 async def setup(bot):
+    print(f"⚙️ Configurando cog Utilidades...")
+    await bot.add_cog(Utilidades(bot))
     print(f"✅ Cog Utilidades adicionado com sucesso!")
