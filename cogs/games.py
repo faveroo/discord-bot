@@ -2,6 +2,7 @@ import json
 import random
 import asyncio
 import discord
+from helpers.normalize import normalize
 from embed import error, success, default
 from deep_translator import GoogleTranslator
 from discord.ext import commands
@@ -52,6 +53,8 @@ class Games(commands.Cog, name="Jogos"):
             return
 
         channel_id = message.channel.id
+        
+        await self.bot.process_commands(message)
 
         # se não há jogo nesse canal, ignorar
         if channel_id not in self.games:
@@ -67,7 +70,7 @@ class Games(commands.Cog, name="Jogos"):
             return
 
         # resposta correta
-        if resposta == game["capital"]:
+        if normalize(resposta) == normalize(game["capital"]):
             country = game["country"]
             capital = game["capital"]
 
@@ -82,7 +85,6 @@ class Games(commands.Cog, name="Jogos"):
             )
 
             # ENCERRA o jogo
-            await self.bot.process_commands(message)
             del self.games[channel_id]
 
 async def setup(bot):
