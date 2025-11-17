@@ -5,6 +5,7 @@ import httpx
 import aiohttp
 import os
 import discord
+from database import set_localizacao, get_localizacao
 from bs4 import BeautifulSoup
 from embed import error, success, default
 from deep_translator import GoogleTranslator
@@ -213,21 +214,78 @@ class Utilidades(commands.Cog, name="Utilidades"):
 
             word_title = soup.find("h1").text
             spans = description.find_all("span")
-            tipo = spans[0].text if len(spans) >= 1 else ""
             significado = spans[1].text if len(spans) >= 2 else description.text
 
             frase_tag = soup.find(class_="frase")
             frase = frase_tag.text.strip() if frase_tag else "Nenhum exemplo encontrado."
 
-            embed = discord.Embed(
-                title=f"📘 {word_title}",
-                description=f"*{tipo}*\n{significado}",
-                color=discord.Color.from_rgb(25, 89, 132)
+            embed = default.DefaultEmbed.create(
+                title=f"📘{word_title}",
+                description=f"{significado}",
             )
-            embed.add_field(name="🖋 Exemplo", value=frase, inline=False)
+            embed.add_field(name="Exemplo: ", value=frase, inline=False)
 
             await ctx.send(embed=embed)
 
+    
+    @commands.command(name="setlocalizacao", help="Define sua cidade/localização para comandos futuros")
+    async def set_localizacao(self, ctx, *, cidade: str):
+        await set_localizacao(ctx.author, cidade)
+        await ctx.send(f"✅ Localização de {ctx.author.mention} definida como: **{cidade}**")
+    
+    @commands.command(name="temperatura", help="Mostra a temperatura de um local em ºC", aliases=["temp", "temperature", "openWeather"])
+    async def temperatura(self, ctx, *, local: str):
+        if not local:
+            local = await get_localizacao(ctx.author)
+            if not local:
+                return await ctx.send("Use !setlocalizacao para definir seu local ou especifique ao executar o comando")
+        load_dotenv()
+        weather = os.getenv("WEATHER_KEY")
+        geo_url = f"http://api.openweathermap.org/geo/1.0/direct?q={local}&limit={1}&appid={weather}"
+
+        async with httpx.AsyncClient() as client:
+            try:
+                resp = await client.get(geo_url)
+                resp.raise_for_status()
+                geo_data = await resp.json()
+            except httpx.HTTPStatusError:
+                return await ctx.send(f"❌ Não foi possível encontrar informações para **{local}**.")
+            except Exception as e:
+                return await ctx.send(f"❌ Erro ao consultar o clima: {e}")
+            
+            if not geo_data:
+                return await ctx.send(f"❌ Cidade **{local}** não encontrada.")
+        
+            lat = geo_data[0]['lat']
+            lon = geo_data[0]['lon']
+            
+        weather_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={weather}&units=metric&lang=pt"
+        async with httpx.AsyncClient() as client:
+            try:
+                weather_resp = await client.get(weather_url)
+                weather_resp.raise_for_status()
+                weather_data = await weather_resp.json()
+            except Exception as e:
+                return await ctx.send(f"❌ Erro ao buscar clima: {e}")
+
+        cidade_nome = weather_data["name"]
+        pais = weather_data["sys"]["country"]
+        temp = weather_data["main"]["temp"]
+        descricao = weather_data["weather"][0]["description"].capitalize()
+        icon_code = weather_data["weather"][0]["icon"]
+        icon_url = f"http://openweathermap.org/img/wn/{icon_code}@2x.png"
+        humidade = weather_data["main"]["humidity"]
+
+        embed = discord.Embed(
+            title=f"🌡 Clima em {cidade_nome}, {pais}",
+            description=descricao,
+            color=discord.Color.from_rgb(25, 89, 132)
+        )
+        embed.add_field(name="🌡 Temperatura", value=f"{temp}°C", inline=True)
+        embed.add_field(name="💧 Humidade", value=f"{humidade}%", inline=True)
+        embed.set_thumbnail(url=icon_url)
+        await ctx.send(embed=embed)
+        
 async def setup(bot):
     print(f"⚙️ Configurando cog Utilidades...")
     await bot.add_cog(Utilidades(bot))
