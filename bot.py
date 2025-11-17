@@ -1,5 +1,6 @@
 import discord
 import os
+import asyncio
 from custom.CustomHelp import CustomHelp
 from handlers.global_errors import setup_global_error_handler
 from discord.ext import commands
@@ -43,7 +44,6 @@ bot = commands.Bot(
 # ------------------------------------------------
 # Evento bot pronto
 # ------------------------------------------------
-@bot.event
 async def on_ready():
     await bot.change_presence(
         activity=discord.Activity(
@@ -54,33 +54,19 @@ async def on_ready():
 
     await setup_global_error_handler(bot)
 
+    # Registra alias do help
     if "ajuda" not in [cmd.name for cmd in bot.commands]:
         bot.all_commands["ajuda"] = bot.all_commands["help"]
 
-    # Carrega os cogs
-    print("\n🔄 Iniciando carregamento dos cogs...")
-    for cog in COGS:
-        try:
-            print(f"\n⚙️ Carregando {cog}...")
-            await bot.load_extension(cog)
-            print(f"✅ Cog {cog} carregado com sucesso!")
-        except Exception as e:
-            print(f"❌ Erro ao carregar {cog}: {e}")
-            import traceback
-            print(f"Detalhes do erro:\n{traceback.format_exc()}")
+    print(f"🤖 Bot conectado como {bot.user}")
 
-    print("\n📋 Lista de todos os comandos registrados:")
-    for command in bot.commands:
-        print(f"- {command.name}")
-
-    # Sincroniza os slash commands
+    # Sincroniza slash commands
     try:
         synced = await bot.tree.sync()
         print(f"✅ {len(synced)} comando(s) slash sincronizados")
     except Exception as e:
         print(f"❌ Erro ao sincronizar slash commands: {e}")
 
-    print(f"🤖 Bot conectado como {bot.user}")
 
 # ------------------------------------------------
 # Slash command: /ping
@@ -92,4 +78,18 @@ async def ping(interaction: discord.Interaction):
 # ------------------------------------------------
 # Inicia o bot
 # ------------------------------------------------
-bot.run(token)
+async def main():
+    print("\n🔄 Iniciando carregamento dos cogs...")
+    for cog in COGS:
+        try:
+            print(f"⚙️ Carregando {cog}...")
+            await bot.load_extension(cog)
+            print(f"✅ Cog {cog} carregado com sucesso!")
+        except Exception as e:
+            print(f"❌ Erro ao carregar {cog}: {e}")
+
+    await bot.start(token)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
