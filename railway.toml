@@ -1,5 +1,8 @@
 [build]
-builder = "python:3.11"
+nixpacks = true
 
-[start]
-cmd = "python bot.py"
+[deploy]
+startCommand = "python bot.py"
+
+[build.env]
+PYTHON_VERSION = "3.11"
