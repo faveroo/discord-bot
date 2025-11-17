@@ -247,7 +247,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
             try:
                 resp = await client.get(geo_url)
                 resp.raise_for_status()
-                geo_data = await resp.json()
+                geo_data = resp.json()
             except httpx.HTTPStatusError:
                 return await ctx.send(f"❌ Não foi possível encontrar informações para **{local}**.")
             except Exception as e:
@@ -264,7 +264,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
             try:
                 weather_resp = await client.get(weather_url)
                 weather_resp.raise_for_status()
-                weather_data = await weather_resp.json()
+                weather_data = weather_resp.json()
             except Exception as e:
                 return await ctx.send(f"❌ Erro ao buscar clima: {e}")
 
