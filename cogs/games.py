@@ -12,6 +12,7 @@ class Games(commands.Cog, name="Jogos"):
 
     def __init__(self, bot):
         self.bot = bot
+        self.active_quiz = False
         self.games = {}
         print(f"✅ Cog Games inicializado")
     
@@ -43,9 +44,9 @@ class Games(commands.Cog, name="Jogos"):
                 if normalize(msg.content) == normalize(capital):
                     from database import update_currency 
                     await update_currency(msg.author, 50)
-                    await ctx.send(f"🎉 Parabéns {msg.author.mention}! **{capital}** está correto! - +50 Moedas")
+                    await ctx.send(f"🎉 Parabéns {msg.author.mention}! **{capital}** está correto! +50 Moedas")
                     break
-
+                    
         except asyncio.TimeoutError:
             await ctx.send(f"⏰ Tempo esgotado! A capital de **{country}** é **{capital}**.")
         finally:
