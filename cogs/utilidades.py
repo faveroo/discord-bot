@@ -343,6 +343,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
             
         try:
             dados = r.json()
+            print("DEBUG:", dados)
         except Exception:
             embed = error.ErrorEmbed.create(
                 title="❌ Erro ao acessar a API",
