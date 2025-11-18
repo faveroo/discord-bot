@@ -367,9 +367,9 @@ class Utilidades(commands.Cog, name="Utilidades"):
             embed = default.DefaultEmbed.create(
                 title=f"💱 Cotação {moeda}/BRL",
             )
-            embed.add_field(name="💰 Valor atual", value=f"R$ {info['bid']}")
-            embed.add_field(name="📈 Alta", value=f"R$ {info['high']}")
-            embed.add_field(name="📉 Baixa", value=f"R$ {info['low']}")
+            embed.add_field(name="💰 Valor atual", value=f"R$ {info['bid'].replace(".", ",")}")
+            embed.add_field(name="📈 Alta", value=f"R$ {info['high'].replace(".", ",")}")
+            embed.add_field(name="📉 Baixa", value=f"R$ {info['low'].replace(".", ",")}")
             embed.set_footer(text="Dados por AwesomeAPI")
             embeds.append(embed)
             
