@@ -326,6 +326,9 @@ class Utilidades(commands.Cog, name="Utilidades"):
 
     @commands.command(name="cotacao", help="Pega a cotação atual do dolar em relação ao real")
     async def cotacao(self, ctx, *, moeda: str = None):
+        if moeda and len(moeda.split()) > 1:
+            return await ctx.send("❌ Use apenas **1 moeda por vez**.")
+
         if moeda is None:
             moedas = ["USD", "EUR", "BTC"]
             m = "USD-BRL,EUR-BRL,BTC-BRL"
@@ -335,7 +338,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
             
         url = f"https://economia.awesomeapi.com.br/last/{m}"
         
-        async with httpx.AsyncClient as client:
+        async with httpx.AsyncClient() as client:
             r = await client.get(url)
             
         try:
