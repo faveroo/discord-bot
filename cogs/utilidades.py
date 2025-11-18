@@ -7,6 +7,7 @@ import os
 import discord
 from datetime import datetime, timedelta
 from database import set_localizacao, get_localizacao, remove_localizacao
+from views.cotacao_view import CotacaoView
 from bs4 import BeautifulSoup
 from embed import error, success, default
 from deep_translator import GoogleTranslator
@@ -324,42 +325,55 @@ class Utilidades(commands.Cog, name="Utilidades"):
         await ctx.send(embed=embed)
 
     @commands.command(name="cotacao", help="Pega a cotação atual do dolar em relação ao real")
-    async def cotacao(self, ctx):
-        data = datetime.now().strftime("%m-%d-%Y")
-        url = (
-            "https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/"
-            f"CotacaoDolarDia(dataCotacao=@dataCotacao)?@dataCotacao='{data}'&$format=json"
-        )
-
-        async with httpx.AsyncClient() as client:
-            r = await client.get(url)
+    async def cotacao(self, ctx, *, moeda: str = None):
+        if moeda is None:
+            moedas = ["USD", "EUR", "BTC"]
+            m = "USD-BRL,EUR-BRL,BTC-BRL"
+        else:
+            moedas = [moeda.upper()]
+            m = f"{moeda.upper()}-BRL"
+            
+        url = f"https://economia.awesomeapi.com.br/last/{m}"
         
+        async with httpx.AsyncClient as client:
+            r = await client.get(url)
+            
         try:
             dados = r.json()
         except Exception:
             embed = error.ErrorEmbed.create(
                 title="❌ Erro ao acessar a API",
-                description=f"O Banco Central retornou uma resposta inválida.\n\nStatus: {r.status_code}"
+                description=f"Foi retornada uma resposta inválida.\n\nStatus: {r.status_code}"
             )
             return await ctx.send(embed=embed)
 
-        if not dados.get("value"):
-            embed = error.ErrorEmbed.create(
-                title="❌ Sem cotação disponível hoje"
+        embeds = []
+        for moeda in moedas:
+            key = f"{moeda}BRL"
+            if key not in dados:
+                embed = error.ErrorEmbed.create(
+                    title="❌ Moeda não encontrada",
+                    description=f"A moeda **{moeda}** não existe ou não foi encontrada.",
+                )
+                embeds.append(embed)
+                continue
+            
+            info = dados[key]
+            embed = default.DefaultEmbed.create(
+                title=f"💱 Cotação {moeda}/BRL",
             )
-            return await ctx.send(embed=embed)
-
-        cotacao = dados["value"][-1]
-        embed = success.SuccessEmbed.create(
-            title="💵 Cotação Atual - USD",
-            description=(
-                f"**Compra:** R$ {cotacao['cotacaoCompra']:.4f}\n"
-                f"**Venda:** R$ {cotacao['cotacaoVenda']:.4f}\n"
-            ),
-        )
-        embed.set_footer(text=f"🕒 Atualizado em: {cotacao['dataHoraCotacao']}")
-        await ctx.send(embed=embed)
-
+            embed.add_field(name="💰 Valor atual", value=f"R$ {info['bid']}")
+            embed.add_field(name="📈 Alta", value=f"R$ {info['high']}")
+            embed.add_field(name="📉 Baixa", value=f"R$ {info['low']}")
+            embed.set_footer(text="Dados por AwesomeAPI")
+            embeds.append(embed)
+            
+        if len(embeds) == 1:
+            return await ctx.send(embed=embeds[0])
+        
+        view = CotacaoView(ctx, embeds)
+        await ctx.send(embed=embeds[0], view=view)
+        
     @commands.command(name="lembrete", help="Lembra você de algo", aliases=["remind"])
     async def lembrete(self, ctx, time: float, message: str):
 
