@@ -335,8 +335,9 @@ class Utilidades(commands.Cog, name="Utilidades"):
         else:
             moedas = [moeda.upper()]
             m = f"{moeda.upper()}-BRL"
-            
-        url = f"https://economia.awesomeapi.com.br/last/{m}"
+        load_dotenv()
+        awesome = os.getenv("AWESOME_TOKEN")
+        url = f"https://economia.awesomeapi.com.br/last/{m}?token={awesome}"
         
         async with httpx.AsyncClient() as client:
             r = await client.get(url)
