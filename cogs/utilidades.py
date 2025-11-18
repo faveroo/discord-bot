@@ -5,6 +5,7 @@ import httpx
 import aiohttp
 import os
 import discord
+from datetime import datetime, timedelta
 from database import set_localizacao, get_localizacao, remove_localizacao
 from bs4 import BeautifulSoup
 from embed import error, success, default
@@ -274,7 +275,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
         if not local:
             local = await get_localizacao(ctx.author)
             if not local:
-                return await ctx.send("Use !setlocalizacao para definir seu local ou especifique ao executar o comando")
+                return await ctx.send("Use `!local set <local>` para definir seu local ou especifique ao executar o comando")
         load_dotenv()
         weather = os.getenv("WEATHER_KEY")
         geo_url = f"http://api.openweathermap.org/geo/1.0/direct?q={quote(local)}&limit={1}&appid={weather}"
@@ -321,7 +322,62 @@ class Utilidades(commands.Cog, name="Utilidades"):
         embed.add_field(name="💧 Humidade", value=f"{humidade}%", inline=True)
         embed.set_thumbnail(url=icon_url)
         await ctx.send(embed=embed)
+
+    @commands.command(name="cotacao", help="Pega a cotação atual do dolar em relação ao real")
+    async def cotacao(self, ctx):
+        data = datetime.now().strftime("%m-%d-%Y")
+        url = (
+            "https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/"
+            f"CotacaoDolarDia(dataCotacao=@dataCotacao)?@dataCotacao='{data}'&$format=json"
+        )
+
+        async with httpx.AsyncClient() as client:
+            r = await client.get(url)
         
+        try:
+            dados = r.json()
+        except Exception:
+            embed = error.ErrorEmbed.create(
+                title="❌ Erro ao acessar a API",
+                description=f"O Banco Central retornou uma resposta inválida.\n\nStatus: {r.status_code}"
+            )
+            return await ctx.send(embed=embed)
+
+        if not dados.get("value"):
+            embed = error.ErrorEmbed.create(
+                title="❌ Sem cotação disponível hoje"
+            )
+            return await ctx.send(embed=embed)
+
+        cotacao = dados["value"][-1]
+        embed = success.SuccessEmbed.create(
+            title="💵 Cotação Atual - USD",
+            description=(
+                f"**Compra:** R$ {cotacao['cotacaoCompra']:.4f}\n"
+                f"**Venda:** R$ {cotacao['cotacaoVenda']:.4f}\n"
+            ),
+        )
+        embed.set_footer(text=f"🕒 Atualizado em: {cotacao['dataHoraCotacao']}")
+        await ctx.send(embed=embed)
+
+    @commands.command(name="lembrete", help="Lembra você de algo", aliases=["remind"])
+    async def lembrete(self, ctx, time: float, message: str):
+
+        remind_time = datetime.now() + timedelta(minutes=time)
+
+        remindEmbed = success.SuccessEmbed.create(
+            title="⏰ Lembrete criado!"
+        )
+        remindEmbed.set_footer(text=f"Será lembrado em: {remind_time.strftime('%d/%m/%Y %H:%M:%S')}")
+        await ctx.send(embed=remindEmbed)
+        await asyncio.sleep(time*60)
+
+        embed = default.DefaultEmbed.create(
+            title="🔔 Lembrete",
+            description=f"{message}"
+        )
+
+        await ctx.send(content=ctx.author.mention, embed=embed)
 async def setup(bot):
     print(f"⚙️ Configurando cog Utilidades...")
     await bot.add_cog(Utilidades(bot))
