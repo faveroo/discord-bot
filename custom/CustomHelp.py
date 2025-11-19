@@ -8,8 +8,9 @@ CATEGORY_ICONS = {
     "default": "📁",
     "Geral": "✨",
     "Diversão": "🎭",
-    "Utilidade": "🛠️",
+    "Utilidades": "🛠️",
     "Economia": "💰",
+    "VoiceTTS": "🎙️",
     "Jogos": "🎮",
     "Moderação": "🛡️",
 }
