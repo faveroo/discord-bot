@@ -13,8 +13,8 @@ TMP_DIR.mkdir(exist_ok=True)
 class TTSQueue:
     def __init__(self, bot):
         self.bot = bot
-        self._queues = {}  # guild_id -> asyncio.Queue
-        self._locks = {}   # guild_id -> asyncio.Lock
+        self._queues = {}
+        self._locks = {}
 
     def _ensure(self, guild_id):
         if guild_id not in self._queues:
@@ -27,14 +27,24 @@ class TTSQueue:
         Retorna o path do arquivo de áudio gerado (wav).
         """
         self._ensure(guild_id)
-        file_name = f"{uuid.uuid4().hex}.ogg"
-        file_path = TMP_DIR / file_name
+        
+        mp3_name = f"{uuid.uuid4().hex}.mp3"
+        opus_name = f"{uuid.uuid4().hex}.opus"
+        
+        mp3_path = TMP_DIR / mp3_name
+        opus_path = TMP_DIR / opus_name
 
         # Gera o áudio com edge-tts
-        await self._generate_edge_tts(text, voice, file_path)
-
-        await self._queues[guild_id].put(file_path)
-        return file_path
+        await self._generate_edge_tts(text, voice, mp3_path)
+        await self._convert_to_opus(mp3_path, opus_path)
+        
+        try:
+            os.remove(mp3_path)
+        except Exception:
+            pass
+        
+        await self._queues[guild_id].put(opus_path)
+        return opus_path
 
     async def _generate_edge_tts(self, text: str, voice: str, out_path: Path):
         """
@@ -44,6 +54,19 @@ class TTSQueue:
         communicate = edge_tts.Communicate(text, voice)
         await communicate.save(str(out_path))
 
+    async def _convert_to_opus(self, mp3_path: Path, opus_path: Path):
+        """
+        Converte MP3 para OPUS usando FFmpeg.
+        """
+        process = await asyncio.create_subprocess_exec(
+            "ffmpeg", "-y",
+            "-i", str(mp3_path),
+            "-c:a", "libopus",
+            str(opus_path),
+            stdout=asyncio.subprocess.DEVNULL,
+            stderr=asyncio.subprocess.DEVNULL
+        )
+        await process.wait()
 
     async def _playback_loop(self, guild, voice_client):
         """
@@ -56,7 +79,7 @@ class TTSQueue:
             queue = self._queues[guild_id]
             
             while not voice_client.is_connected():
-                await asyncio.sleep(0.5)
+                await asyncio.sleep(0.3)
                 return
 
             while True:
@@ -72,7 +95,7 @@ class TTSQueue:
                 voice_client.play(source)
 
                 while voice_client.is_playing() or voice_client.is_paused():
-                    await asyncio.sleep(0.1)
+                    await asyncio.sleep(0.3)
 
                 try:
                     os.remove(file_path)
@@ -85,7 +108,6 @@ class TTSQueue:
         """
         guild_id = guild.id
         self._ensure(guild_id)
-        lock = self._locks[guild_id]
 
         # Se já tem uma task rodando para esse lock, não inicia outra.
         # Usamos a presença do lock para serializar; criando uma task que
