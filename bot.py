@@ -19,7 +19,7 @@ COGS = [
     'cogs.geral',
     'cogs.moderation',
     'cogs.modlog',
-    'cogs.owner'
+    'cogs.owner',
     'cogs.utilidades',
     'cogs.voiceTTS'
 ]
