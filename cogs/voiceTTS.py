@@ -8,7 +8,6 @@ class VoiceTTS(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.tts = TTSQueue(bot)
-        self._playback_tasks = {}
 
     @commands.command(name="entrar")
     async def entrar(self, ctx):
@@ -16,6 +15,7 @@ class VoiceTTS(commands.Cog):
             return await ctx.send("Você precisa estar em um canal de voz para eu entrar.")
 
         channel = ctx.author.voice.channel
+        
         if ctx.voice_client and ctx.voice_client.is_connected():
             return await ctx.send("Já estou em uma call neste servidor.")
 

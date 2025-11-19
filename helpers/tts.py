@@ -27,7 +27,7 @@ class TTSQueue:
         Retorna o path do arquivo de áudio gerado (wav).
         """
         self._ensure(guild_id)
-        file_name = f"{uuid.uuid4().hex}.mp3"
+        file_name = f"{uuid.uuid4().hex}.ogg"
         file_path = TMP_DIR / file_name
 
         # Gera o áudio com edge-tts
@@ -38,11 +38,12 @@ class TTSQueue:
 
     async def _generate_edge_tts(self, text: str, voice: str, out_path: Path):
         """
-        Usa edge-tts para gerar MP3. edge-tts salva para arquivo com aiofiles.
+        Usa edge-tts para gerar OGG.
+        communicate.save() já escreve o arquivo sozinho.
         """
         communicate = edge_tts.Communicate(text, voice)
-        with open(out_path, "wb") as f:
-            await communicate.save(str(out_path))
+        await communicate.save(str(out_path))
+
 
     async def _playback_loop(self, guild, voice_client):
         """
@@ -53,6 +54,7 @@ class TTSQueue:
         
         async with self._locks[guild_id]:
             queue = self._queues[guild_id]
+            
             while not voice_client.is_connected():
                 await asyncio.sleep(0.5)
                 return
@@ -62,16 +64,15 @@ class TTSQueue:
                     file_path = await asyncio.wait_for(queue.get(), timeout=300.0)
                 except asyncio.TimeoutError:
                     try:
-                        await voice_client.disconnect()
+                        await voice_client.disconnect(force=True)
                     except Exception:
                         pass
                     break
 
                 if not voice_client.is_connected():
-                    # se não estiver mais conectado, pare
                     break
 
-                source = discord.FFmpegPCMAudio(str(file_path))
+                source = discord.FFmpegOpusAudio(str(file_path))
                 voice_client.play(source)
 
                 while voice_client.is_playing() or voice_client.is_paused():
