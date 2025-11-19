@@ -10,14 +10,6 @@ class Geral(commands.Cog, name="Geral"):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(help="Diz olá para o usuário", aliases=["hello", "hi", "hey"])
-    async def oi(self, ctx):
-        await ctx.send("Olá! 👋 Sou um bot em Python!")
-
-    @commands.command(help="Marca everyone")
-    async def todos(self, ctx):
-        await ctx.send("Bom dia @everyone 👋")
-
     @app_commands.command(name="number", description="Responde com um número aleatório")
     async def number(self, interaction: discord.Interaction):
         import random
