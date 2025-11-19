@@ -64,5 +64,5 @@ class VoiceTTS(commands.Cog):
         except Exception as e:
             await message.channel.send("Erro ao tocar áudio: " + str(e))
 
-def setup(bot):
-    bot.add_cog(VoiceTTS(bot))
+async def setup(bot):
+    await bot.add_cog(VoiceTTS(bot))
