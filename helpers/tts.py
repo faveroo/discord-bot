@@ -63,11 +63,7 @@ class TTSQueue:
                 try:
                     file_path = await asyncio.wait_for(queue.get(), timeout=300.0)
                 except asyncio.TimeoutError:
-                    try:
-                        await voice_client.disconnect(force=True)
-                    except Exception:
-                        pass
-                    break
+                    continue
 
                 if not voice_client.is_connected():
                     break
