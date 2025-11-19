@@ -6,5 +6,5 @@ motor==3.7.1
 pymongo==4.15.4
 aiohttp>=3.8.5
 beautifulsoup4==4.12.2
-edge-tts==0.2.1
+edge-tts
 aiofiles
