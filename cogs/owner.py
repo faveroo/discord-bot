@@ -38,5 +38,12 @@ class Owner(commands.Cog, name="Owner"):
         else:
             raise error
 
+    @commands.command()
+    async def debugtime(self, ctx):
+        from datetime import datetime, timezone
+        now_utc = datetime.now(timezone.utc)
+        now_local = datetime.now()
+        await ctx.send(f"UTC: {now_utc}\nLOCAL: {now_local}")
+
 async def setup(bot):
     await bot.add_cog(Owner(bot))

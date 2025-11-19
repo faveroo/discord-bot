@@ -5,8 +5,12 @@ import httpx
 import aiohttp
 import os
 import discord
-from datetime import datetime, timedelta
-from database import set_localizacao, get_localizacao, remove_localizacao
+from zoneinfo import ZoneInfo
+from bson import ObjectId
+from helpers.time_converter import parse_time
+from datetime import datetime, timedelta, timezone
+BR_TZ = timezone(timedelta(hours=-3))
+from database import set_localizacao, get_localizacao, remove_localizacao, create_reminder, edit_reminder_message, delete_reminder, get_user_reminders, get_pending_reminders, find_reminder_by_prefix
 from views.cotacao_view import CotacaoView
 from bs4 import BeautifulSoup
 from embed import error, success, default
@@ -20,7 +24,52 @@ class Utilidades(commands.Cog, name="Utilidades"):
 
     def __init__(self, bot):
         self.bot = bot
+        self._tasks = {}
         print(f"✅ Cog Utilidades inicializado com os comandos: {[c.name for c in self.get_commands()]}")
+
+    async def cog_load(self):
+        asyncio.create_task(self._load_pending())
+
+    async def _load_pending(self):
+        await self.bot.wait_until_ready()
+        docs = await get_pending_reminders()
+
+        now = datetime.now(timezone.utc)
+        for doc in docs:
+            remind_at: datetime = doc["remind_at"]
+            delta = (remind_at - now).total_seconds()
+            if delta < 0:
+                delta = 0
+
+            t = asyncio.create_task(self._schedule(doc["_id"], delta))
+            self._tasks[str(doc["_id"])] = t
+    
+    async def _schedule(self, reminder_id: ObjectId, seconds: float):
+        try:
+            await asyncio.sleep(seconds)
+        except asyncio.CancelledError:
+            return
+
+        from database import reminders
+
+        doc = await reminders.find_one({"_id": reminder_id})
+        if not doc:
+            return
+
+        user = self.bot.get_user(doc["user_id"]) or await self.bot.fetch_user(doc["user_id"])
+        embed = default.DefaultEmbed.create(
+            title="🔔 Lembrete",
+            description=doc["message"]
+        )
+
+        try:
+            await user.send(embed=embed)
+        except:
+            channel = self.bot.get_channel(doc["channel_id"])
+            if channel:
+                await channel.send(f"{user.mention}", embed=embed)
+        await delete_reminder(reminder_id)
+        self._tasks.pop(str(reminder_id), None)
 
     @commands.command(help="Traduz texto automaticamente para português", aliases=["translate", "tr"])
     async def traduzir(self, ctx, *, texto):
@@ -230,11 +279,11 @@ class Utilidades(commands.Cog, name="Utilidades"):
 
             await ctx.send(embed=embed)
 
-    @commands.group(help="Grupo com relação comandos local")
+    @commands.group(help="Grupo com relação comandos local", hidden=True)
     async def local(self, ctx):
         """Comandos para definir, ver ou excluir o local"""
         if ctx.invoked_subcommand is None:
-            await ctx.send("Digite !help local para saber mais!")
+            await ctx.send("Digite `!help local` para saber mais!")
 
     @local.command(name="set", help="Define sua cidade/localização para comandos futuros")
     async def set_local(self, ctx, *, cidade: str):
@@ -379,24 +428,103 @@ class Utilidades(commands.Cog, name="Utilidades"):
         view = CotacaoView(ctx, embeds)
         await ctx.send(embed=embeds[0], view=view)
         
-    @commands.command(name="lembrete", help="Lembra você de algo", aliases=["remind"])
-    async def lembrete(self, ctx, time: float, message: str):
+    @commands.group(name="remind", help="Comandos de lembrete", aliases=["lembrete", "lembrar"])
+    async def remind(self, ctx):
+        """Comandos para criar, listar, excluir ou editar lembretes"""
+        if ctx.invoked_subcommand is None:
+            await ctx.send("Digite `!help local` para saber mais!")
 
-        remind_time = datetime.now() + timedelta(minutes=time)
+    @remind.command(name="set", help="Cria um lembrete", aliases=["criar"])
+    async def remind_set(self, ctx, time: str, *, message: str):
+        seconds = parse_time(time)
+        if not seconds:
+            return await ctx.send(embed=error.ErrorEmbed.create(
+                title="❌ Tempo inválido",
+                description="Use: 10s, 5m, 2h30m, 1d"
+            ))
+        
+        remind_at = datetime.now(timezone.utc) + timedelta(seconds=seconds)
 
-        remindEmbed = success.SuccessEmbed.create(
-            title="⏰ Lembrete criado!"
+        oid = await create_reminder(
+            user_id=ctx.author.id,
+            message=message,
+            remind_at=remind_at,
+            channel_id=ctx.channel.id
         )
-        remindEmbed.set_footer(text=f"Será lembrado em: {remind_time.strftime('%d/%m/%Y %H:%M:%S')}")
-        await ctx.send(embed=remindEmbed)
-        await asyncio.sleep(time*60)
 
+        task = asyncio.create_task(self._schedule(oid, seconds))
+        self._tasks[str(oid)] = task
+
+        remind_at_br = remind_at.astimezone(BR_TZ)
+
+        embed = success.SuccessEmbed.create(title="⏰ Lembrete criado!")
+        embed.set_footer(text=f"Será lembrado em {remind_at_br.strftime('%d/%m/%Y %H:%M:%S')} (BR)")
+        await ctx.send(embed=embed)
+    
+    @remind.command(name="list", help="Lista os lembretes", aliases=["listar"])
+    async def remind_list(self, ctx):
+        reminders = await get_user_reminders(ctx.author.id)
+
+        if not reminders:
+            embed = default.DefaultEmbed.create(
+                title=f"📪 Você não tem lembretes"
+            )
+            return await ctx.send(embed=embed)
+        
         embed = default.DefaultEmbed.create(
-            title="🔔 Lembrete",
-            description=f"{message}"
+            "📫 Seus lembretes"
         )
 
-        await ctx.send(content=ctx.author.mention, embed=embed)
+        for r in reminders:
+
+            remind_at_br = r["remind_at"].astimezone(BR_TZ)
+
+            embed.add_field(
+                name=f"ID: `{str(r['_id'])[:6]}`",
+                value=( 
+                    f"📌 {r['message']}\n"
+                    f"⏰ {remind_at_br.strftime('%d/%m/%Y %H:%M:%S')} BR",
+                ),
+                inline=False
+            )
+        
+        await ctx.send(embed=embed)
+
+    @remind.command(name="edit")
+    async def remind_edit(self, ctx, reminder_prefix: str, *, new_message: str):
+        """Edita a mensagem de um lembrete"""
+        doc = await find_reminder_by_prefix(ctx.author.id, reminder_prefix)
+
+        if not doc:
+            return await ctx.send(embed=error.ErrorEmbed.create(
+                title="❌ Lembrete não encontrado"
+            ))
+
+        await edit_reminder_message(doc["_id"], new_message)
+    
+        await ctx.send(embed=success.SuccessEmbed.create(
+            title="✏️ Mensagem do lembrete atualizada!"
+        ))
+
+    @remind.command(name="remove")
+    async def remind_remove(self, ctx, reminder_prefix: str):
+        """Remove um lembrete"""
+        doc = await find_reminder_by_prefix(ctx.author.id, reminder_prefix)
+        if not doc:
+            return await ctx.send(embed=error.ErrorEmbed.create(
+                title="❌ Lembrete não encontrado"
+            ))
+
+        t = self._tasks.pop(str(doc["_id"]), None)
+        if t:
+            t.cancel()
+
+        await delete_reminder(doc["_id"])
+
+        await ctx.send(embed=default.DefaultEmbed.create(
+            title="🗑️ Lembrete removido."
+        ))
+
 async def setup(bot):
     print(f"⚙️ Configurando cog Utilidades...")
     await bot.add_cog(Utilidades(bot))
