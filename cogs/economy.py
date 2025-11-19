@@ -2,7 +2,7 @@ import discord
 import random
 from discord.ext import commands
 from embed import error, success, default
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from database import get_currency, update_currency, get_last_daily, set_last_daily
 from discord import app_commands
 from dotenv import load_dotenv
@@ -107,10 +107,11 @@ class Economy(commands.Cog, name="Economia"):
     async def daily(self, ctx):
         user = ctx.author
         last_daily = await get_last_daily(user)
-        now = datetime.now(timezone.utc())
-        
+        now = datetime.now(timezone.utc)
+
+        print(type(last_daily), last_daily)
         if last_daily and (now - last_daily).days < 1:
-            next_claim = last_daily + datetime.timedelta(days=1)
+            next_claim = last_daily + timedelta(days=1)
             time_remaining = next_claim - now
             hours, remainder = divmod(int(time_remaining.total_seconds()), 3600)
             minutes, seconds = divmod(remainder, 60)
