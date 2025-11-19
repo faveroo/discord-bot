@@ -109,7 +109,6 @@ class Economy(commands.Cog, name="Economia"):
         last_daily = await get_last_daily(user)
         now = datetime.now(timezone.utc)
 
-        print(type(last_daily), last_daily)
         if last_daily and (now - last_daily).days < 1:
             next_claim = last_daily + timedelta(days=1)
             time_remaining = next_claim - now
