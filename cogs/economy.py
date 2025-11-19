@@ -107,7 +107,7 @@ class Economy(commands.Cog, name="Economia"):
     async def daily(self, ctx):
         user = ctx.author
         last_daily = await get_last_daily(user)
-        now = datetime.datetime.now(timezone.utc())
+        now = datetime.now(timezone.utc())
         
         if last_daily and (now - last_daily).days < 1:
             next_claim = last_daily + datetime.timedelta(days=1)
