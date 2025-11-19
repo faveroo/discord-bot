@@ -2,7 +2,8 @@ import discord
 import random
 from discord.ext import commands
 from embed import error, success, default
-from database import get_currency
+from datetime import datetime, timezone
+from database import get_currency, update_currency, get_last_daily, set_last_daily
 from discord import app_commands
 from dotenv import load_dotenv
 
@@ -104,12 +105,9 @@ class Economy(commands.Cog, name="Economia"):
     
     @commands.command(name="daily", help="Resgatar sua recompensa diária de moedas", aliases=["diario"])
     async def daily(self, ctx):
-        from database import get_currency, update_currency, get_last_daily, set_last_daily
-        import datetime
-        
         user = ctx.author
         last_daily = await get_last_daily(user)
-        now = datetime.datetime.now()
+        now = datetime.datetime.now(timezone.utc())
         
         if last_daily and (now - last_daily).days < 1:
             next_claim = last_daily + datetime.timedelta(days=1)
