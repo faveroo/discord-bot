@@ -2,6 +2,7 @@ import discord
 import os
 import asyncio
 from custom.CustomHelp import CustomHelp
+from database import is_user_banned
 from handlers.global_errors import setup_global_error_handler
 from discord.ext import commands
 from discord import app_commands
@@ -19,6 +20,7 @@ COGS = [
     'cogs.geral',
     'cogs.moderation',
     'cogs.modlog',
+    'cogs.music',
     'cogs.owner',
     'cogs.utilidades',
     'cogs.voiceTTS'
@@ -45,6 +47,19 @@ bot = commands.Bot(
 # ------------------------------------------------
 # Evento bot pronto
 # ------------------------------------------------
+
+
+@bot.check
+async def global_ban_check(ctx):
+    if ctx.guild is None:
+        return True
+    
+    if await is_user_banned(ctx.author):
+        await ctx.send("⛔ Você está banido de usar o bot.")
+        return False
+
+    return True
+
 async def on_ready():
     await bot.change_presence(
         activity=discord.Activity(
@@ -65,7 +80,6 @@ async def on_ready():
         print(f"✅ {len(synced)} comando(s) slash sincronizados")
     except Exception as e:
         print(f"❌ Erro ao sincronizar slash commands: {e}")
-
 
 # ------------------------------------------------
 # Slash command: /ping
