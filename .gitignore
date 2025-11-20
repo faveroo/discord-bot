@@ -6,3 +6,4 @@ custom/*.pyc
 cogs/__pycache__
 helpers/test.py
 tmp_tts/
+/bin/ffmpeg/*.exe
