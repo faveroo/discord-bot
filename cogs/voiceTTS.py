@@ -42,8 +42,13 @@ class VoiceTTS(commands.Cog):
             return
 
         vc = message.guild.voice_client
+
         if not vc or not vc.is_connected():
             return
+
+        if vc.is_playing():
+            return
+
 
         text = message.content.strip()
         if not text:
@@ -54,7 +59,7 @@ class VoiceTTS(commands.Cog):
             return
 
         try:
-            await self.tts.enqueue(message.guild.id, text, voice="pt-BR-AntonioNeural")
+            await self.tts.enqueue(message.guild.id, text, voice="ja-JP-KeitaNeural")
         except Exception as e:
             await message.channel.send("Erro ao gerar TTS: " + str(e))
             return
