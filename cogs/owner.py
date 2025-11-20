@@ -1,5 +1,6 @@
 from embed import error, success, default
 import discord
+from database import set_banned_user, get_banned_users
 from discord.ext import commands
 from discord import app_commands
 
@@ -38,12 +39,17 @@ class Owner(commands.Cog, name="Owner"):
         else:
             raise error
 
-    @commands.command()
-    async def debugtime(self, ctx):
-        from datetime import datetime, timezone
-        now_utc = datetime.now(timezone.utc)
-        now_local = datetime.now()
-        await ctx.send(f"UTC: {now_utc}\nLOCAL: {now_local}")
+    @commands.is_owner()
+    @commands.command(name="rdfban", aliases=["masterban"], hidden=True)
+    async def rdfban(self, ctx, user: discord.User):
+        banned_users = await get_banned_users()
+        banned_list = [u async for u in banned_users]
+
+        if any(u["discord_id"] == user.id for u in banned_list):
+            return await ctx.send("❌ Usuário já está banido do bot.")
+        
+        await set_banned_user(user)
+        await ctx.send(f"🔨 {user.mention} foi banido de usar o bot.")
 
 async def setup(bot):
     await bot.add_cog(Owner(bot))
