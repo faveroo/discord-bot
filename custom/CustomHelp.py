@@ -11,6 +11,7 @@ CATEGORY_ICONS = {
     "Utilidades": "🛠️",
     "Economia": "💰",
     "VoiceTTS": "🎙️",
+    "Música": "🎶",
     "Jogos": "🎮",
     "Moderação": "🛡️",
 }
