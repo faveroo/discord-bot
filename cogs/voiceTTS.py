@@ -9,7 +9,7 @@ class VoiceTTS(commands.Cog):
         self.bot = bot
         self.tts = TTSQueue(bot)
 
-    @commands.command(name="entrar")
+    @commands.command(name="join", aliases=["entrar", "voice"])
     async def entrar(self, ctx):
         if ctx.author.voice is None:
             return await ctx.send("Você precisa estar em um canal de voz para eu entrar.")
@@ -21,18 +21,7 @@ class VoiceTTS(commands.Cog):
 
         vc = await channel.connect()
         await ctx.send(f"Entrei na call: **{channel.name}**")
-
-        await self.tts.ensure_playing(ctx.guild, vc)
-
-    @commands.command(name="sair")
-    async def sair(self, ctx):
-        vc = ctx.voice_client
-        if not vc or not vc.is_connected():
-            return await ctx.send("Não estou em nenhuma call aqui.")
-
-        await vc.disconnect()
-        await ctx.send("Saí da call.")
-
+        
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.author.bot or message.guild is None:
@@ -59,7 +48,7 @@ class VoiceTTS(commands.Cog):
             return
 
         try:
-            await self.tts.enqueue(message.guild.id, text, voice="ja-JP-KeitaNeural")
+            await self.tts.enqueue(message.guild.id, text, voice="pt-BR-AntonioNeural")
         except Exception as e:
             await message.channel.send("Erro ao gerar TTS: " + str(e))
             return
