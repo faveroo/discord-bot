@@ -100,11 +100,26 @@ async def get_modlog(guild_id: int):
     return data["channel_id"] if data else None
 
 
-# RESETAR ECONOMIA
+#   OWNER 
 
 async def reset_economia(valor=150):
     resultado = await usuarios.update_many({}, {"$set": {"saldo": valor}})
     return resultado.modified_count
+
+async def set_banned_user(usuario):
+    await new_user(usuario)
+
+    filter = {"discord_id": usuario.id}
+    update = {"$set": {"ban": True}}
+    await usuarios.update_one(filter, update)
+
+async def is_user_banned(usuario):
+    data = await usuarios.find_one({"discord_id": usuario.id})
+    return data and data.get("ban", False)
+
+async def get_banned_users():
+    banned = usuarios.find({"ban": True})
+    return banned
 
 # UTILIDADES 
 async def set_localizacao(usuario, cidade: str):
