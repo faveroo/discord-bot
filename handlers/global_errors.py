@@ -5,6 +5,9 @@ import discord
 async def setup_global_error_handler(bot):
     @bot.event
     async def on_command_error(ctx, error):
+        
+        if isinstance(error, commands.CheckFailure):
+            return
 
         traducao = {
             "Manage Messages": "Gerenciar mensagens",
