@@ -13,6 +13,7 @@ TMP_DIR.mkdir(exist_ok=True)
 class TTSQueue:
     def __init__(self, bot):
         self.bot = bot
+        self._tasks = {}
         self._queues = {}
         self._locks = {}
 
@@ -34,7 +35,6 @@ class TTSQueue:
         mp3_path = TMP_DIR / mp3_name
         opus_path = TMP_DIR / opus_name
 
-        # Gera o áudio com edge-tts
         await self._generate_edge_tts(text, voice, mp3_path)
         await self._convert_to_opus(mp3_path, opus_path)
         
@@ -91,7 +91,7 @@ class TTSQueue:
                 if not voice_client.is_connected():
                     break
 
-                source = discord.FFmpegOpusAudio(str(file_path))
+                source = discord.FFmpegOpusAudio(str(file_path), executable="bin/ffmpeg/ffmpeg.exe")
                 voice_client.play(source)
 
                 while voice_client.is_playing() or voice_client.is_paused():
@@ -109,6 +109,11 @@ class TTSQueue:
         guild_id = guild.id
         self._ensure(guild_id)
 
+        if guild_id in self._tasks:
+            task = self._tasks[guild_id]
+            if not task.done():
+               return  # Já existe loop rodando
+            
         # Se já tem uma task rodando para esse lock, não inicia outra.
         # Usamos a presença do lock para serializar; criando uma task que
         # imediatamente tentará adquirir o lock.
@@ -116,4 +121,4 @@ class TTSQueue:
             await self._playback_loop(guild, voice_client)
 
         # start the loop task without awaiting; the loop will acquire the lock
-        asyncio.create_task(_run_loop())
+        self._tasks[guild_id] = asyncio.create_task(_run_loop())
