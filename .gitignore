@@ -5,3 +5,4 @@ custom/__pycache__
 custom/*.pyc
 cogs/__pycache__
 helpers/test.py
+tmp_tts/
