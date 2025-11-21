@@ -1,5 +1,5 @@
 def near(a, b, target):
     if abs(a - target) < abs(b - target):
-        return a
+        return a, b
     else:
-        return b
+        return b, a
