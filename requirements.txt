@@ -9,3 +9,4 @@ aiohttp>=3.8.5
 beautifulsoup4==4.12.2
 edge-tts==6.1.0
 aiofiles
+yt_dlp
