@@ -55,7 +55,8 @@ class Music(commands.Cog, name="Músicas"):
     @commands.command(name="play", aliases=["tocar"], usage="<musica>")
     async def play(self, ctx:commands.Context, *, song_query: str):
         
-        vc = ctx.author.voice.channel
+        if ctx.author.voice.channel is not None:
+            vc = ctx.author.voice.channel
 
         if vc is None:
             return await ctx.send("❌ Você deve estar conectado em um canal de voz")
