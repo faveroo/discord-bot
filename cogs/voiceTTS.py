@@ -11,7 +11,7 @@ class VoiceTTS(commands.Cog):
 
     @commands.command(name="join", aliases=["entrar", "voice"])
     async def entrar(self, ctx):
-        if ctx.author.voice is None:
+        if ctx.author.voice or ctx.author.voice.channel is None:
             return await ctx.send("Você precisa estar em um canal de voz para eu entrar.")
 
         channel = ctx.author.voice.channel
@@ -37,7 +37,6 @@ class VoiceTTS(commands.Cog):
 
         if vc.is_playing():
             return
-
 
         text = message.content.strip()
         if not text:
