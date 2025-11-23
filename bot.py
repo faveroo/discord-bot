@@ -14,16 +14,19 @@ token = os.getenv("TOKEN")
 
 # Lista de cogs para carregar
 COGS = [
-    'cogs.economy',
-    'cogs.fun',
-    'cogs.games',
-    'cogs.geral',
-    'cogs.moderation',
-    'cogs.modlog',
-    'cogs.music',
-    'cogs.owner',
-    'cogs.utilidades',
-    'cogs.voiceTTS'
+    'cogs.prefix.economy',
+    'cogs.slash.economy',
+    'cogs.prefix.fun',
+    'cogs.prefix.games',
+    'cogs.prefix.geral',
+    'cogs.slash.geral',
+    'cogs.prefix.moderation',
+    'cogs.prefix.modlog',
+    'cogs.prefix.music',
+    'cogs.prefix.owner',
+    'cogs.prefix.utilidades',
+    'cogs.slash.utilidades',
+    'cogs.prefix.voiceTTS'
 ]
 
 intents = discord.Intents.default()
@@ -60,6 +63,7 @@ async def global_ban_check(ctx):
 
     return True
 
+@bot.event
 async def on_ready():
     await bot.change_presence(
         activity=discord.Activity(
@@ -74,13 +78,13 @@ async def on_ready():
 
     print(f"🤖 Bot conectado como {bot.user}")
 
-    # Sincroniza slash commands
     try:
         synced = await bot.tree.sync()
         print(f"✅ {len(synced)} comando(s) slash sincronizados")
     except Exception as e:
         print(f"❌ Erro ao sincronizar slash commands: {e}")
 
+    # Sincroniza slash commands
 # ------------------------------------------------
 # Slash command: /ping
 # ------------------------------------------------
@@ -100,6 +104,7 @@ async def main():
             print(f"✅ Cog {cog} carregado com sucesso!")
         except Exception as e:
             print(f"❌ Erro ao carregar {cog}: {e}")
+
             
     await setup_global_error_handler(bot)
     await bot.start(token)
