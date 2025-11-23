@@ -4,6 +4,7 @@ import asyncio
 from discord.ext import commands
 from handlers.economy_errors import *
 from helpers import near
+from helpers.parsed_type import parse_bet_type
 from embed import error, success, default
 from datetime import datetime, timedelta, timezone
 from database import get_currency, update_currency, get_last_daily, set_last_daily
@@ -12,11 +13,55 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+RED_NUMBERS = {
+    1,3,5,7,9,12,14,16,18,
+    19,21,23,25,27,30,32,34,36
+}
+
+BLACK_NUMBERS = {
+    2,4,6,8,10,11,13,15,17,
+    20,22,24,26,28,29,31,33,35
+}
+
 class Economy(commands.Cog, name="Economia"):
     """Comandos relacionados à economia"""
 
     def __init__(self, bot):
         self.bot = bot
+        self.roullete = {}
+    
+    # async def finish_roullete(self, ctx):
+    #     guild_id = ctx.guild.id
+
+    #     players = self.roullete[guild_id]["players"]
+
+    #     if len(players) <= 1:
+    #         await ctx.send(embed=error.ErrorEmbed.create(
+    #             title="❌ Erro",
+    #             description="A roleta foi cancelada — jogadores insuficientes."
+    #         ))
+    #         self.roullete.pop(guild_id, None)
+    #         return
+
+    #     # Soma total da banca
+    #     total = sum(p["amount"] for p in players)
+    #     winner = random.choice(players)
+
+    #     await update_currency(winner["user"], total)
+
+    #     # Mensagem final
+    #     msg = "🎰 **Roleta Finalizada!**\n\n"
+    #     msg += "\n".join([f"• {p['user'].name} apostou {p['amount']}" for p in players])
+    #     msg += f"\n\n🎉 **Vencedor:** {winner['user'].mention} ganhou **{total} moedas!**"
+
+    #     await ctx.send(embed=success.SuccessEmbed.create(
+    #         title="✅ Roleta Finalizada!",
+    #         description=msg
+    #     ))
+
+    #     # Limpa a roleta
+    #     self.roullete.pop(guild_id, None)
+
     
     @commands.command(name="balance", help="Ver seu saldo atual 💰", aliases=["saldo", "money"])
     async def balance(self, ctx, user: str = None):     
@@ -125,7 +170,7 @@ class Economy(commands.Cog, name="Economia"):
             if member == ctx.author:
                 return await ctx.send(embed=error.ErrorEmbed.create(
                     title="❌ Erro",
-                    description="Você não pode transferir moedas para si mesmo."
+                    description="Você não pode apostar com você mesmo."
                 ))
                 
             
@@ -208,6 +253,71 @@ class Economy(commands.Cog, name="Economia"):
             await ctx.send(f"🎯 Número sorteado: **{rdn}**\n🏆 O vencedor é: **{winner_user.mention}**!")
             await update_currency(loser_user, -value)
             await update_currency(winner_user, value)
-            
+
+    @commands.command(name="roulette", help="Jogo de roleta", aliases=["roleta"])
+    async def roulette(self, ctx, bet_type: str, amount: int):
+        # Verifica aposta
+        parsed = parse_bet_type(bet_type)
+        if not parsed:
+            return await EconomyError.InvalidBetType(ctx)
+
+        if amount <= 0:
+            return await EconomyError.InvalidAmount(ctx)
+
+        user_currency = await get_currency(ctx.author)
+        if user_currency < amount:
+            return await EconomyError.NotEnoughMoney(ctx)
+
+        await update_currency(ctx.author, -amount)
+
+        result = random.randint(0, 36)
+        color = "red" if result in RED_NUMBERS else "black" if result in BLACK_NUMBERS else "green"
+
+        bet_category, value = parsed
+
+        win = False
+        multiplier = 0
+
+        # NÚMERO
+        if bet_category == "number":
+            if result == value:
+                win = True
+                multiplier = 35
+
+        # COR
+        elif bet_category == "color":
+            if color == value:
+                win = True
+                multiplier = 2
+
+        # FAIXAS
+        elif bet_category == "range":
+            start, end = value
+            if start <= result <= end:
+                # 1-12 / 13-24 / 25-36 → 3x
+                if (start, end) in [(1,12),(13,24),(25,36)]:
+                    win = True
+                    multiplier = 3
+                # 1-18 / 19-36 → 2x
+                else:
+                    win = True
+                    multiplier = 2
+
+        # Resultado da aposta
+        if win:
+            prize = amount * multiplier
+            await update_currency(ctx.author, prize)
+            await ctx.send(embed=success.SuccessEmbed.create(
+                title="✅ Roleta Finalizada!",
+                description=f"🎰 Resultado: **{result} ({color})**\n"
+                f"🎉 Você ganhou **{prize} moedas!** (x{multiplier})"
+            ))
+        else:
+            await ctx.send(embed=error.ErrorEmbed.create(
+                title="❌ Roleta Finalizada!",
+                description=f"🎰 Resultado: **{result} ({color})**\n"
+                f"💀 Você perdeu **{amount} moedas!**"
+            ))
+
 async def setup(bot):
     await bot.add_cog(Economy(bot))
