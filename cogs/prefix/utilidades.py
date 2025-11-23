@@ -6,6 +6,7 @@ import aiohttp
 import os
 import discord
 from zoneinfo import ZoneInfo
+from handlers.economy_errors import EconomyError
 from discord import app_commands
 from bson import ObjectId
 from helpers.time_converter import parse_time
@@ -14,7 +15,7 @@ BR_TZ = timezone(timedelta(hours=-3))
 from database import set_localizacao, get_localizacao, remove_localizacao, create_reminder, edit_reminder_message, delete_reminder, get_user_reminders, get_pending_reminders, find_reminder_by_prefix
 from views.cotacao_view import CotacaoView
 from bs4 import BeautifulSoup
-from embed import error, success, default
+from embed import error, success, default, info
 from deep_translator import GoogleTranslator
 from discord.ext import commands
 from urllib.parse import quote
@@ -105,7 +106,10 @@ class Utilidades(commands.Cog, name="Utilidades"):
                 data = response.json()
                 advice = data["slip"]["advice"]
             except Exception as e:
-                return await ctx.send(f"❌ Erro ao obter conselho: {e}")
+                return await ctx.send(embed=error.ErrorEmbed.create(
+                    title="❌ Erro",
+                    description=f"Erro ao obter conselho: {e}"
+                ))
 
         translated_advice = ""
         try:
@@ -127,7 +131,10 @@ class Utilidades(commands.Cog, name="Utilidades"):
     async def ver(self, ctx):
         """Comando para ver coisas interessantes"""
         if ctx.invoked_subcommand is None:
-            await ctx.send("❓ Por favor, especifique o que você quer ver. Use `!help ver` para mais informações.")
+            await ctx.send(embed=error.ErrorEmbed.create(
+                title="❌ Erro",
+                description="Por favor, especifique o que você quer ver. Use `!help ver` para mais informações."
+            ))
 
     @ver.command(name="capital", help="Mostra a capital de um país")
     async def cap(self, ctx, *, pais: str):
@@ -166,9 +173,15 @@ class Utilidades(commands.Cog, name="Utilidades"):
 
         if info:
             moeda = info['moeda']
-            await ctx.send(f"🌍 **{pais.capitalize()}**\n💰 Moeda: {moeda}\n")
+            await ctx.send(embed=default.DefaultEmbed.create(
+                title=f"🌍 **{pais.capitalize()}**",
+                description=f"💰 Moeda: {moeda}\n"
+            ))
         else:
-            await ctx.send("❌ País não encontrado! Verifique se escreveu corretamente.")
+            await ctx.send(embed=error.ErrorEmbed.create(
+                title="❌ Erro",
+                description="País não encontrado! Verifique se escreveu corretamente."
+            ))
 
     @commands.command(name="rps", help="Jogo Pedra, Papel ou Tesoura", aliases=["paperrock", "papelpedra", "rockpaperscissors"])
     async def rps(self, ctx, escolha: str, amount: int = 0):
@@ -180,9 +193,9 @@ class Utilidades(commands.Cog, name="Utilidades"):
 
         saldo_atual = await get_currency(ctx.author)
         if amount <= 0:
-            return await ctx.send(embed=error.ErrorEmbed.create(title="❌ Erro", description="A quantia deve ser maior que zero."))
+            return await EconomyError.InvalidAmount(ctx)
         if saldo_atual < amount:
-            return await ctx.send(embed=error.ErrorEmbed.create(title="❌ Erro", description="Saldo insuficiente para essa aposta."))
+            return await EconomyError.NotEnoughMoney(ctx)
         
         bot_escolha = random.choice(escolhas_validas)
         b_emoji = {"pedra": "🪨", "papel": "📄", "tesoura": "✂️"}
@@ -284,7 +297,10 @@ class Utilidades(commands.Cog, name="Utilidades"):
     async def local(self, ctx):
         """Comandos para definir, ver ou excluir o local"""
         if ctx.invoked_subcommand is None:
-            await ctx.send("Digite `!help local` para saber mais!")
+            await ctx.send(embed=error.ErrorEmbed.create(
+                title="❌ Erro",
+                description="Digite `!help local` para saber mais!"
+            ))
 
     @local.command(name="set", help="Define sua cidade/localização para comandos futuros")
     async def set_local(self, ctx, *, cidade: str):
@@ -337,12 +353,21 @@ class Utilidades(commands.Cog, name="Utilidades"):
                 resp.raise_for_status()
                 geo_data = resp.json()
             except httpx.HTTPStatusError:
-                return await ctx.send(f"❌ Não foi possível encontrar informações para **{local}**.")
+                return await ctx.send(embed=error.ErrorEmbed.create(
+                    title="❌ Erro",
+                    description=f"Não foi possível encontrar informações para **{local}**."
+                ))
             except Exception as e:
-                return await ctx.send(f"❌ Erro ao consultar o clima: {e}")
+                return await ctx.send(embed=error.ErrorEmbed.create(
+                    title="❌ Erro",
+                    description=f"Erro ao consultar o clima: {e}"
+                ))
             
             if not geo_data:
-                return await ctx.send(f"❌ Cidade **{local}** não encontrada.")
+                return await ctx.send(embed=error.ErrorEmbed.create(
+                    title="❌ Erro",
+                    description=f"Cidade **{local}** não encontrada."
+                ))
         
             lat = geo_data[0]['lat']
             lon = geo_data[0]['lon']
@@ -354,7 +379,10 @@ class Utilidades(commands.Cog, name="Utilidades"):
                 weather_resp.raise_for_status()
                 weather_data = weather_resp.json()
             except Exception as e:
-                return await ctx.send(f"❌ Erro ao buscar clima: {e}")
+                return await ctx.send(embed=error.ErrorEmbed.create(
+                    title="❌ Erro",
+                    description=f"Erro ao buscar clima: {e}"
+                ))
 
         cidade_nome = weather_data["name"]
         pais = weather_data["sys"]["country"]
@@ -377,7 +405,10 @@ class Utilidades(commands.Cog, name="Utilidades"):
     @commands.command(name="cotacao", help="Pega a cotação atual do dolar em relação ao real")
     async def cotacao(self, ctx, *, moeda: str = None):
         if moeda and len(moeda.split()) > 1:
-            return await ctx.send("❌ Use apenas **1 moeda por vez**.")
+            return await ctx.send(embed=error.ErrorEmbed.create(
+                title="❌ Erro",
+                description="Use apenas **1 moeda por vez**."
+            ))
 
         if moeda is None:
             moedas = ["USD", "EUR", "BTC"]
@@ -433,7 +464,10 @@ class Utilidades(commands.Cog, name="Utilidades"):
     async def remind(self, ctx):
         """Comandos para criar, listar, excluir ou editar lembretes"""
         if ctx.invoked_subcommand is None:
-            await ctx.send("Digite `!help local` para saber mais!")
+            await ctx.send(embed=error.ErrorEmbed.create(
+                title="❌ Erro",
+                description="Digite `!help remind` para saber mais!"
+            ))
 
     @remind.command(name="set", help="Cria um lembrete", aliases=["criar"])
     async def remind_set(self, ctx, time: str, *, message: str):
@@ -467,7 +501,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
         reminders = await get_user_reminders(ctx.author.id)
 
         if not reminders:
-            embed = default.DefaultEmbed.create(
+            embed = info.InfoEmbed.create(
                 title=f"📪 Você não tem lembretes"
             )
             return await ctx.send(embed=embed)

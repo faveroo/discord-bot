@@ -1,6 +1,7 @@
 # cogs/voice_cog.py
 import discord
 from discord.ext import commands
+from embed import error, success, default, info
 import asyncio
 from helpers.tts import TTSQueue
 
@@ -12,15 +13,24 @@ class VoiceTTS(commands.Cog):
     @commands.command(name="join", aliases=["entrar", "voice"])
     async def entrar(self, ctx):
         if ctx.author.voice.channel is None:
-            return await ctx.send("Você precisa estar em um canal de voz para eu entrar.")
+            return await ctx.send(embed=error.ErrorEmbed.create(
+                title="❌ Erro",
+                description="Você precisa estar em um canal de voz para eu entrar."
+            ))
 
         channel = ctx.author.voice.channel
         
         if ctx.voice_client and ctx.voice_client.is_connected():
-            return await ctx.send("Já estou em uma call neste servidor.")
+            return await ctx.send(embed=error.ErrorEmbed.create(
+                title="❌ Erro",
+                description="Já estou em uma call neste servidor."
+            ))
 
         vc = await channel.connect()
-        await ctx.send(f"Entrei na call: **{channel.name}**")
+        await ctx.send(embed=success.SuccessEmbed.create(
+            title="✅ Conectado com sucesso!",
+            description=f"🔗 Conectado com sucesso na call: **{channel.name}**"
+        ))
         
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -43,19 +53,28 @@ class VoiceTTS(commands.Cog):
             return
 
         if len(text) > 400:
-            await message.channel.send(f"{message.author.mention} O texto é muito grande para TTS. Limite: 400 caracteres.")
+            await message.channel.send(embed=error.ErrorEmbed.create(
+                title="❌ Erro",
+                description=f"{message.author.mention} O texto é muito grande para TTS. Limite: 400 caracteres."
+            ))
             return
 
         try:
             await self.tts.enqueue(message.guild.id, text, voice="pt-BR-AntonioNeural")
         except Exception as e:
-            await message.channel.send("Erro ao gerar TTS: " + str(e))
+            await message.channel.send(embed=error.ErrorEmbed.create(
+                title="❌ Erro",
+                description="Erro ao gerar TTS: " + str(e)
+            ))
             return
 
         try:
             await self.tts.ensure_playing(message.guild, vc)
         except Exception as e:
-            await message.channel.send("Erro ao tocar áudio: " + str(e))
+            await message.channel.send(embed=error.ErrorEmbed.create(
+                title="❌ Erro",
+                description="Erro ao tocar áudio: " + str(e)
+            ))
 
 async def setup(bot):
     await bot.add_cog(VoiceTTS(bot))
