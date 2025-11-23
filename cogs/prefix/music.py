@@ -10,6 +10,7 @@ class Music(commands.Cog, name="Músicas"):
     def __init__(self, bot:commands.Bot):
         self.bot = bot
         self.queues = {}
+        self.save = {}
         self.volume = {}
 
     async def search_ytdlp_async(self, query, ydl_options):
@@ -95,6 +96,7 @@ class Music(commands.Cog, name="Músicas"):
             "url": audio_url,
             "title": title
         })
+
 
         if not vc_client.is_playing():
             self.play_next(ctx, vc_client)
@@ -182,7 +184,10 @@ class Music(commands.Cog, name="Músicas"):
             return await ctx.send(embed=embed)
 
         if not 0 <= vol <= 200:
-            return await ctx.send("O volume deve ser entre 0 e 200.")
+            embed = info.InfoEmbed.create(
+                title=f"O volume deve ser entre 0 e 200"
+            )
+            return await ctx.send(embed=embed)
         
         guild_id = ctx.guild.id
         self.volume[guild_id] = vol / 100
@@ -191,6 +196,35 @@ class Music(commands.Cog, name="Músicas"):
         if vc_client and vc_client.source:
             vc_client.source.volume = self.volume[guild_id]
         
-        await ctx.send(f"🔊 Volume definido para **{vol}%**")
+        embed = default.DefaultEmbed.create(
+                title=f"🔊 Volume definido para **{vol}%**"
+            )
+        return await ctx.send(embed=embed)
+
+    @commands.command(name="queue", aliases=["fila"])
+    async def queue(self, ctx, page: int = 1):
+        if ctx.guild.id not in self.queues or len(self.queues[ctx.guild.id]) == 0:
+            embed = info.InfoEmbed.create(
+                title="⚠️ A fila está vazia."
+            )
+            return await ctx.send(embed=embed)
+        
+        queue = self.queues[ctx.guild.id]
+        lines = []
+
+        for i, track in enumerate(queue, start=1):
+            lines.append(f"**{i}.** {track['title']}")
+        
+        description = "\n".join(lines[:15])
+        embed = default.DefaultEmbed.create(
+            title="🎶 Fila de Reprodução",
+            description=description
+        )
+        if len(queue) > 15:
+            embed.set_footer(text=f"...e mais {len(queue)-15} músicas.")
+
+        return await ctx.send(embed=embed)
+
+
 async def setup(bot:commands.Bot):
     await bot.add_cog(Music(bot))

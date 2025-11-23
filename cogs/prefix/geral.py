@@ -9,12 +9,6 @@ class Geral(commands.Cog, name="Geral"):
 
     def __init__(self, bot):
         self.bot = bot
-
-    @app_commands.command(name="number", description="Responde com um número aleatório")
-    async def number(self, interaction: discord.Interaction):
-        import random
-        num = random.randint(1, 100)
-        await interaction.response.send_message(f"Seu número aleatório é: {num}")
     
     @commands.command(help="Informações sobre o bot", aliases=["info", "about"])
     async def sobre(self, ctx):

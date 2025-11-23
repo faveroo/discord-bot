@@ -2,6 +2,7 @@ import discord
 import random
 import asyncio
 from discord.ext import commands
+from handlers.economy_errors import *
 from helpers import near
 from embed import error, success, default
 from datetime import datetime, timedelta, timezone
@@ -18,14 +19,21 @@ class Economy(commands.Cog, name="Economia"):
         self.bot = bot
     
     @commands.command(name="balance", help="Ver seu saldo atual 💰", aliases=["saldo", "money"])
-    async def balance(self, ctx, member: discord.Member = None):
-        target = member or ctx.author
-        saldo = await get_currency(target)
+    async def balance(self, ctx, user: str = None):     
+        if user:
+            try:
+                member = await commands.MemberConverter().convert(ctx, user)
+            except commands.MemberNotFound:
+                return await EconomyError.NotFoundUser(ctx)
+        else:
+            member = ctx.author    
+        saldo = await get_currency(member)
+            
 
         if member:  # consultando de outra pessoa
             embed = discord.Embed(
-                title=f"Saldo de {target.display_name}",
-                description=f"💰 {target.mention} tem **{saldo}** moedas.",
+                title=f"Saldo de {member.display_name}",
+                description=f"💰 {member.mention} tem **{saldo}** moedas.",
                 color=discord.Color.green()
             )
         else:  # consultando o próprio saldo
@@ -37,28 +45,10 @@ class Economy(commands.Cog, name="Economia"):
 
         await ctx.send(embed=embed)
 
-    @app_commands.command(name="saldo", description="💰 Veja seu saldo atual ou o de outro usuário.")
-    async def saldo(self, interaction: discord.Interaction, member: discord.Member = None):
-        await interaction.response.defer()
-
-        user = member or interaction.user
-        saldo_atual = await get_currency(user)
-
-        embed = discord.Embed(
-            title=f"Saldo de {user.display_name}",
-            description=f"💰 {user.mention} tem **{saldo_atual:,}** moedas.",
-            color=discord.Color.green()
-        )
-
-        await interaction.followup.send(embed=embed)
-
     @commands.command(name="give", help="Dar moedas para outro usuário", aliases=["dar", "transfer"])
     async def give(self, ctx, member: discord.Member = None, amount: int = 0):
         if not member:
-            return await ctx.send(embed=error.ErrorEmbed.create(
-                title="❌ Erro",
-                description="Usuário não encontrado."
-            ))
+            return await EconomyError.NotFoundUser(ctx)
 
         if member == ctx.author:
             return await ctx.send(embed=error.ErrorEmbed.create(
@@ -140,10 +130,7 @@ class Economy(commands.Cog, name="Economia"):
                 
             
             if member is None:
-                return await ctx.send(embed=error.ErrorEmbed.create(
-                    title="❌ Erro",
-                    description="Usuário não encontrado."
-                ))
+                return await EconomyError.NotFoundUser(ctx)
             
             if value is None or value <= 0:
                 return await ctx.send(embed=error.ErrorEmbed.create(

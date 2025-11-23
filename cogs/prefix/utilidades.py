@@ -6,6 +6,7 @@ import aiohttp
 import os
 import discord
 from zoneinfo import ZoneInfo
+from discord import app_commands
 from bson import ObjectId
 from helpers.time_converter import parse_time
 from datetime import datetime, timedelta, timezone

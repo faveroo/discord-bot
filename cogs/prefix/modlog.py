@@ -73,7 +73,6 @@ class ModLog(commands.Cog):
             )
             await ctx.send(embed=embed)
 
-
     async def send_log(self, guild: discord.Guild, embed: discord.Embed):
         """"Envia um embed de log"""
         channel_id = await get_modlog(guild.id)

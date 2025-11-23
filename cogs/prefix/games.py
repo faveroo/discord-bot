@@ -51,6 +51,7 @@ class Games(commands.Cog, name="Jogos"):
             await ctx.send(f"⏰ Tempo esgotado! A capital de **{country}** é **{capital}**.")
         finally:
             self.active_quiz = False
+
 async def setup(bot):
     print(f"⚙️ Configurando cog Games...")
     await bot.add_cog(Games(bot))
