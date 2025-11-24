@@ -1,6 +1,6 @@
-from embed import error, success, default
+from embed import error, success, default, info
 import discord
-from database import set_banned_user, get_banned_users
+from database import set_banned_user, get_banned_users, remove_banned_user
 from discord.ext import commands
 from discord import app_commands
 
@@ -38,6 +38,22 @@ class Owner(commands.Cog, name="Owner"):
             await ctx.send("🚫 Apenas o dono do bot pode usar este comando.")
         else:
             raise error
+
+    @commands.is_owner()
+    @commands.command(name="rdfunban", aliases=["masterunban"], hidden=True)
+    async def rdfunban(self, ctx, user: discord.User):
+        banned_users = await get_banned_users()
+        banned_list = [u async for u in banned_users]
+
+        if any(u["discord_id"] == user.id for u in banned_list):
+            await remove_banned_user(user)
+            return await ctx.send(embed=success.SuccessEmbed.create(
+                title="✅ Usuário desbanido!"
+            ))
+        
+        return await ctx.send(embed=info.InfoEmbed.create(
+            title="⚠️ Usuário não está banido."
+        ))
 
     @commands.is_owner()
     @commands.command(name="rdfban", aliases=["masterban"], hidden=True)
