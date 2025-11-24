@@ -21,7 +21,7 @@ COGS = [
     'cogs.prefix.geral',
     'cogs.slash.geral',
     'cogs.prefix.moderation',
-    'cogs.prefix.modlog',
+    'cogs.prefix.logs',
     'cogs.prefix.music',
     'cogs.prefix.owner',
     'cogs.prefix.utilidades',

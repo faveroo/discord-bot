@@ -3,7 +3,8 @@ import random
 import httpx
 import discord
 from deep_translator import GoogleTranslator
-from embed.default import DefaultEmbed, InfoEmbed
+from embed.default import DefaultEmbed
+from embed.info import InfoEmbed
 from helpers.piadas import piadas
 from discord.ext import commands
 
@@ -160,14 +161,14 @@ class Diversao(commands.Cog, name="Diversão"):
         frase = escolher_frase(porcentagem)
 
         blocks = 10
-        filled = int(porcentagem / 100) * blocks
+        filled = int(porcentagem / 100 * blocks)
         bar = "█" * filled + "░" * (blocks - filled)
         formated_bar = f"[{bar}] {porcentagem}%"
         embed = DefaultEmbed.create(
             title="💖 Teste de Compatibilidade",
             description=(
                 f"{user1.mention} ❤️ {user2.mention}\n\n"
-                f"**Compatibilidade:** {porcentagem}%\n"
+                f"**Compatibilidade:**"
                 f"{formated_bar}\n\n"
                 f"{frase}"
             )
