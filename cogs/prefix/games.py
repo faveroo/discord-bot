@@ -21,7 +21,7 @@ class Games(commands.Cog, name="Jogos"):
     @commands.command(help="Jogo de adivinhar a capital", aliases=["capitals"])
     async def capital(self, ctx):
         if self.active_quiz:
-            await ctx.send(embed=error("⚠️ Já existe um quiz ativo. Aguarde terminar!"))
+            await ctx.send(embed=info.InfoEmbed.create(title="⚠️ Já existe um quiz ativo. Aguarde terminar!"))
             return
         self.active_quiz = True
         
@@ -31,7 +31,7 @@ class Games(commands.Cog, name="Jogos"):
         country = random.choice(list(capitals.keys()))
         capital = capitals[country]['capital']
         
-        await ctx.send(f"🌍 **Quiz de Capitais!**\nQual é a capital de **{country}**?\n⏱️ Você(s) têm **30 segundos**!")
+        await ctx.send(embed=default.DefaultEmbed.create(title=f"🌍 **Quiz de Capitais!**\nQual é a capital de **{country}**?\n⏱️ Você(s) têm **30 segundos**!"))
 
         def check(msg):
             return msg.channel == ctx.channel
@@ -46,11 +46,11 @@ class Games(commands.Cog, name="Jogos"):
                 if normalize(msg.content) == normalize(capital):
                     from database import update_currency 
                     await update_currency(msg.author, 50)
-                    await ctx.send(f"🎉 Parabéns {msg.author.mention}! **{capital}** está correto! +50 Moedas")
+                    await ctx.send( embed=success.SuccessEmbed.create(title=f"🎉 Parabéns {msg.author.mention}! **{capital}** está correto! +50 Moedas"))
                     break
                     
         except asyncio.TimeoutError:
-            await ctx.send(f"⏰ Tempo esgotado! A capital de **{country}** é **{capital}**.")
+            await ctx.send(embed=error.ErrorEmbed.create(title=f"⏰ Tempo esgotado! A capital de **{country}** é **{capital}**."))
         finally:
             self.active_quiz = False
 

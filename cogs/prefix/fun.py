@@ -5,7 +5,6 @@ import discord
 from deep_translator import GoogleTranslator
 from embed.default import DefaultEmbed
 from helpers.piadas import piadas
-from helpers.piadas2 import piadas2
 from discord.ext import commands
 
 class Diversao(commands.Cog, name="Diversão"):
@@ -80,11 +79,78 @@ class Diversao(commands.Cog, name="Diversão"):
 
     @commands.command(help="piadas v2", aliases=["joke2", "piadas2"])
     async def piada2(self, ctx):
+        from helpers.piadas2 import piadas2
         piada_obj = random.choice(piadas2)
         pergunta = piada_obj['pergunta']
         resposta = piada_obj['resposta']
 
         await ctx.send(f"😂 {pergunta}\n -{resposta}")
+
+    @commands.command(name="ship", help="Shippa duas pessoas", aliases=["casal"])
+    async def ship(self, ctx, user1: discord.User, user2: discord.User):
+        porcentagem = random.randint(0, 100)
+        
+        frases_ruins = [
+            "🚨 Alerta de desastre romântico!",
+            "💀 Isso aqui não tem como dar certo...",
+            "❌ Compatibilidade zero. Zero mesmo.",
+            "🧊 Mais frio que o Alasca.",
+            "🤝 Amigos… e olhe lá."
+        ]
+
+        frases_baixas = [
+            "😬 Pode até rolar… mas eu não botaria fé.",
+            "🤔 Talvez com muito esforço… MUITO.",
+            "🧩 Peças quase encaixam, mas falta algo.",
+            "🌧️ O clima não está muito favorável.",
+            "🙃 Ainda não convenceu…"
+        ]
+
+        frases_medias = [
+            "🙂 Não é ruim, mas também não é aquele fogo.",
+            "🫶 As chances são medianas.",
+            "✨ Pode virar algo, quem sabe?",
+            "😌 Nada mal! Pode funcionar.",
+            "🤝 Tem potencial aqui!"
+        ]
+
+        frases_boas = [
+            "🔥 Tá esquentando isso aí!",
+            "😍 Combinação promissora!",
+            "💞 Eu shippo! Tem química!",
+            "💘 Isso aí tem futuro!",
+            "❤️‍🔥 A chama já está acesa!"
+        ]
+
+        frases_otimas = [
+            "💖 ALMAS GÊMEAS DETECTADAS!",
+            "💍 Onde é o casamento? Eu vou!",
+            "❤️ Compatibilidade absurda, isso é destino.",
+            "💘 É o match perfeito!",
+            "🌟 Perfeitos um para o outro!"
+        ]
+
+        # Escolhe a frase de acordo com a % de compatibilidade
+        if porcentagem <= 20:
+            frase = random.choice(frases_ruins)
+        elif porcentagem <= 40:
+            frase = random.choice(frases_baixas)
+        elif porcentagem <= 60:
+            frase = random.choice(frases_medias)
+        elif porcentagem <= 80:
+            frase = random.choice(frases_boas)
+        else:
+            frase = random.choice(frases_otimas)
+
+        embed = DefaultEmbed.create(
+            title="💖 Teste de Compatibilidade",
+            description=(
+                f"{user1.mention} ❤️ {user2.mention}\n\n"
+                f"**Compatibilidade:** {porcentagem}%\n"
+                f"**{frase}**"
+            )
+        )
+        await ctx.send(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(Diversao(bot))
