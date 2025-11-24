@@ -37,7 +37,7 @@ class VoiceTTS(commands.Cog):
         if message.author.bot or message.guild is None:
             return
         
-        if message.channel.name != "transcrever":
+        if "transcrever" not in message.channel.name and "tts" not in message.channel.name:
             return
 
         vc = message.guild.voice_client
