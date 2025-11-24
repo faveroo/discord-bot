@@ -11,8 +11,8 @@ class Moderation(commands.Cog, name="Moderação"):
         self.bot = bot
     
     @property
-    def modlog(self):
-        return self.bot.get_cog("ModLog")
+    def logs(self):
+        return self.bot.get_cog("Logs")
 
     @commands.command(name="clear", help="Limpa mensagens no canal", aliases=["limpar", "purge"])
     @commands.has_permissions(manage_messages=True)
@@ -27,6 +27,19 @@ class Moderation(commands.Cog, name="Moderação"):
         await ctx.send(embed=success.SuccessEmbed.create(
             title=f"✅ {len(deleted) - 1} Mensagens Apagadas",
         ), delete_after=5)
+
+        if self.logs:
+            embed = info.InfoEmbed.create(
+                title="🗑️ Mensagens Limpas",
+                description=(
+                    f"**Moderador:** {ctx.author}\n"
+                    f"**Canal:** {ctx.channel.mention}\n"
+                    f"**Quantidade:** {len(deleted) - 1}\n"
+                )
+            )
+            embed.set_footer(text=f"Horário: {discord.utils.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}")
+            await self.logs.send_audit_log(ctx.guild, embed)
+
     
     @commands.command(name="kick", help="Expulsa um membro do servidor", aliases=["expulsar", "lowkick"])
     @commands.has_permissions(kick_members=True)
@@ -34,12 +47,12 @@ class Moderation(commands.Cog, name="Moderação"):
         await member.kick(reason=reason)
         await ctx.send(f"Usuário {member.mention} foi punido!")
         
-        if self.modlog:
+        if self.logs:
             embed = info.InfoEmbed.create(
                 title="👢 Usuário Expulso",
                 description=f"**Moderador:** {ctx.author}\n**Usuário:** {member}\n**Motivo:** {reason}"
             )
-            await self.modlog.send_log(ctx.guild, embed)
+            await self.logs.send_log(ctx.guild, embed)
     
     @commands.command(name="ban", help="Bane um membro do servidor", aliases = ["banir", "b"])
     @commands.has_permissions(ban_members=True)
@@ -89,12 +102,12 @@ class Moderation(commands.Cog, name="Moderação"):
                 )
                 await ctx.send(embed=confirm_embed)
 
-                if self.modlog:
+                if self.logs:
                     embed = info.InfoEmbed.create(
                         title="👢 Usuário Banido",
                         description=f"**Moderador:** {ctx.author}\n**Usuário:** {member}\n**Motivo:** {reason}"
                     )
-                    await self.modlog.send_log(ctx.guild, embed)
+                    await self.logs.send_log(ctx.guild, embed)
 
             else:
                 cancel_embed = discord.Embed(
@@ -131,13 +144,13 @@ class Moderation(commands.Cog, name="Moderação"):
                     pass
         
         await member.add_roles(muted_role, reason=reason)
-        if self.modlog:
-                    embed = info.InfoEmbed.create(
-                        title="👢 Usuário Mutado",
-                        description=f"**Moderador:** {ctx.author}\n**Usuário:** {member}\n**Tempo:** {time} Minutos\n**Motivo:** {reason}"
-                    )
-                    embed.set_thumbnail(url=member.avatar.url)
-                    await self.modlog.send_log(ctx.guild, embed)
+        if self.logs:
+            embed = info.InfoEmbed.create(
+                title="👢 Usuário Mutado",
+                description=f"**Moderador:** {ctx.author}\n**Usuário:** {member}\n**Tempo:** {time} Minutos\n**Motivo:** {reason}"
+            )
+            embed.set_thumbnail(url=member.avatar.url)
+            await self.logs.send_log(ctx.guild, embed)
 
         await asyncio.sleep(time*60)
 
@@ -149,7 +162,7 @@ class Moderation(commands.Cog, name="Moderação"):
             )
             embed.set_thumbnail(url=member.avatar.url)
 
-            return await self.modlog.send_log(ctx.guild, embed)
+            return await self.logs.send_log(ctx.guild, embed)
 
     @commands.command(name="unmute", help="Desmuta um usuário mutado", aliases=["desmutar"])
     @commands.has_permissions(manage_roles=True, mute_members=True)
@@ -163,7 +176,7 @@ class Moderation(commands.Cog, name="Moderação"):
                 description="Se comporte para não ser mutado novamente 😡"
             )
             embed.set_thumbnail(url=member.avatar.url)
-            await self.modlog.send_log(ctx.guild, embed)
+            await self.logs.send_log(ctx.guild, embed)
 
             return await ctx.send(f"{member} foi desmutado")
         
@@ -180,13 +193,64 @@ class Moderation(commands.Cog, name="Moderação"):
                 title=f"{user} foi desbanido",
                 description=f"**Responsável:** {ctx.author}"
             )
-            return await self.modlog.send_log(ctx.guild, embed)
+            return await self.logs.send_log(ctx.guild, embed)
         except discord.NotFound:
             await ctx.send("Esse usuário não está banido.")
         except Exception as e:
             await ctx.send(f"Erro: {e}")
 
+    @commands.group(name="create", help="Cria um canal", aliases=["criar"])
+    @commands.has_permissions(manage_channels=True)
+    async def create(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send("Por favor, especifique um subcomando válido.")
+    
+    @create.command(name="category", help="Cria uma categoria", aliases=["categoria"])
+    async def create_category(self, ctx, *, name: str):
+        await ctx.guild.create_category(name=name)
+        await ctx.send(embed=success.SuccessEmbed.create(title="Categoria criada com sucesso"))
         
-                      
+        if self.logs:
+            embed = info.InfoEmbed.create(
+                title="📁 Categoria Criada",
+                description=f"**Moderador:** {ctx.author}\n**Nome:** {name}"
+            )
+            await self.logs.send_audit_log(ctx.guild, embed)
+
+    @create.command(name="text", help="Cria um canal de texto", aliases=["texto"])
+    async def create_text(self, ctx, category: str, *, name: str):
+        category = discord.utils.get(ctx.guild.categories, name=category)
+
+        if not category:
+            return await ctx.send(embed=info.InfoEmbed.create(title="Categoria não encontrada"))
+        
+        channel = await ctx.guild.create_text_channel(name=name, category=category)
+        await ctx.send(embed=success.SuccessEmbed.create(title="Canal criado com sucesso"))
+        
+        if self.logs:
+            embed = info.InfoEmbed.create(
+                title="💬 Canal de Texto Criado",
+                description=f"**Moderador:** {ctx.author}\n**Canal:** {channel.mention}\n**Categoria:** {category.name}"
+            )
+            await self.logs.send_audit_log(ctx.guild, embed)
+
+    @create.command(name="voice", help="Cria um canal de voz", aliases=["voz"])
+    async def create_voice(self, ctx, category: str, *, name: str):
+        category = discord.utils.get(ctx.guild.categories, name=category)
+
+        if not category:
+            return await ctx.send(embed=info.InfoEmbed.create(title="Categoria não encontrada"))
+        
+        channel = await ctx.guild.create_voice_channel(name=name, category=category)
+        await ctx.send(embed=success.SuccessEmbed.create(title="Canal criado com sucesso"))
+        
+        if self.logs:
+            embed = info.InfoEmbed.create(
+                title="🔊 Canal de Voz Criado",
+                description=f"**Moderador:** {ctx.author}\n**Canal:** {channel.name}\n**Categoria:** {category.name}"
+            )
+            await self.logs.send_audit_log(ctx.guild, embed)
+
+              
 async def setup(bot):
     await bot.add_cog(Moderation(bot))
