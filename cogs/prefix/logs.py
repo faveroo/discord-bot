@@ -152,7 +152,7 @@ class Logs(commands.Cog):
 
         if created:
 
-            set_auditlog(ctx.guild.id, created.id)
+            await set_auditlog(ctx.guild.id, created.id)
 
             embed = success.SuccessEmbed.create(
                 title="✅ Chat criado com sucesso"
