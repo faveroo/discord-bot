@@ -251,6 +251,48 @@ class Utilidades(commands.Cog, name="Utilidades"):
         embed.set_image(url=avatar_banner_url)
         await ctx.send(embed=embed)
 
+    @commands.guild_only()
+    @commands.command(name="userinfo", help="Mostra informações do usuário", aliases=["user"])
+    async def userinfo(self, ctx, user: discord.User = None):
+        if not user:
+            user = ctx.author
+
+        member = ctx.guild.get_member(user.id)
+        
+        embed = default.DefaultEmbed.create(
+            title=f"Informações do usuário {user}"
+        )
+
+        embed.set_thumbnail(url=user.avatar.url if user.avatar else user.default_avatar.url)
+
+        embed.add_field(name="ID", value=user.id, inline=True)
+        embed.add_field(name="Nome", value=user.name, inline=True)
+        embed.add_field(
+            name="Criado em",
+            value=user.created_at.strftime("%d/%m/%Y %H:%M:%S"),
+            inline=True
+        )
+
+        if member:
+            embed.add_field(
+                name="Entrou no servidor em",
+                value=member.joined_at.strftime("%d/%m/%Y %H:%M:%S"),
+                inline=True
+            )
+            embed.add_field(name="Status", value=str(member.status).title(), inline=True)
+            embed.add_field(
+                name="Atividade",
+                value=member.activity.name if member.activity else "Nenhuma",
+                inline=True
+            )
+        else:
+            embed.add_field(name="Entrou no servidor em", value="Usuário não está no servidor", inline=True)
+            embed.add_field(name="Status", value="Indisponível", inline=True)
+            embed.add_field(name="Atividade", value="Indisponível", inline=True)
+
+        await ctx.send(embed=embed)
+
+
     @commands.command(name="dicio", help="Mostra o significado de uma palavra", aliases=["dicionario", "search"])
     async def dicio(self, ctx, *, palavra: str):
         async with aiohttp.ClientSession() as session:
@@ -559,6 +601,22 @@ class Utilidades(commands.Cog, name="Utilidades"):
         await ctx.send(embed=default.DefaultEmbed.create(
             title="🗑️ Lembrete removido."
         ))
+
+    @commands.command(name="calculator", help="Calcula uma expressão matemática, ex: !calc 2+2", aliases=["calc"])
+    async def calculator(self, ctx, *, expression: str):
+        try:
+            result = eval(expression)
+        except Exception as e:
+            return await ctx.send(embed=error.ErrorEmbed.create(
+                title="❌ Erro",
+                description=f"Erro ao calcular a expressão"
+            ))
+        
+        await ctx.send(embed=default.DefaultEmbed.create(
+            title="🧮 Calculadora",
+            description=f"**Expressão:** {expression}\n**Resultado:** {result}"
+        ))
+    
 
 async def setup(bot):
     print(f"⚙️ Configurando cog Utilidades...")
