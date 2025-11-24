@@ -113,6 +113,11 @@ async def set_banned_user(usuario):
     update = {"$set": {"ban": True}}
     await usuarios.update_one(filter, update)
 
+async def remove_banned_user(usuario):
+    filter = {"discord_id": usuario.id}
+    update = {"$set": {"ban": False}}
+    await usuarios.update_one(filter, update)
+
 async def is_user_banned(usuario):
     data = await usuarios.find_one({"discord_id": usuario.id})
     return data and data.get("ban", False)
