@@ -40,7 +40,10 @@ class Music(commands.Cog, name="Músicas"):
         vc.play(source, after=lambda e: self.play_next(ctx, vc))
 
         asyncio.run_coroutine_threadsafe(
-            ctx.send(f"▶️ Tocando: **{track['title']}**"),
+            ctx.send(embed=default.DefaultEmbed.create(
+                title="▶️ Tocando",
+                description=f"▶️ Tocando: **{track['title']}**"
+            )),
             self.bot.loop
         )
 
@@ -48,10 +51,16 @@ class Music(commands.Cog, name="Músicas"):
     async def sair(self, ctx):
         vc = ctx.voice_client
         if not vc or not vc.is_connected():
-            return await ctx.send("Não estou em nenhuma call aqui.")
+            return await ctx.send(embed=info.InfoEmbed.create(
+                title="⚠️ Aviso",
+                description="Não estou em nenhuma call aqui."
+            ))
 
         await vc.disconnect()
-        await ctx.send("Saí da call.")
+        await ctx.send(embed=success.SuccessEmbed.create(
+            title="✅ Sucesso",
+            description="Saí da call."
+        ))
 
     @commands.command(name="play", aliases=["tocar"], usage="<musica>")
     async def play(self, ctx:commands.Context, *, song_query: str):
@@ -60,7 +69,10 @@ class Music(commands.Cog, name="Músicas"):
             vc = ctx.author.voice.channel
 
         if vc is None:
-            return await ctx.send("❌ Você deve estar conectado em um canal de voz")
+            return await ctx.send(embed=error.ErrorEmbed.create(
+                title="❌ Erro",
+                description="Você deve estar conectado em um canal de voz"
+            ))
         
         vc_client = ctx.guild.voice_client
 
@@ -81,7 +93,10 @@ class Music(commands.Cog, name="Músicas"):
         tracks = result.get("entries", [])
 
         if tracks is None or len(tracks) == 0:
-            return await ctx.send("Não encontrei resultados")
+            return await ctx.send(embed=error.ErrorEmbed.create(
+                title="❌ Erro",
+                description="Não encontrei resultados"
+            ))
 
         first_track = tracks[0]
         audio_url = first_track["url"]
@@ -101,68 +116,107 @@ class Music(commands.Cog, name="Músicas"):
         if not vc_client.is_playing():
             self.play_next(ctx, vc_client)
         else:
-            await ctx.send(f"➕ Adicionado à fila: **{title}**")
+            await ctx.send(embed=default.DefaultEmbed.create(
+                title="➕ Adicionado à fila",
+                description=f"➕ Adicionado à fila: **{title}**"
+            ))
 
     @commands.command(name="pause", help="Pausa a música", aliases=["pausar", "p"])
     async def pausar(self, ctx:commands.Context):
 
         if ctx.author.voice is None:
-            return await ctx.send("Você precisa estar em um canal de voz.")
+            return await ctx.send(embed=info.InfoEmbed.create(
+                title="⚠️ Aviso",
+                description="Você precisa estar em um canal de voz.")
+            )
 
         vc = ctx.author.voice.channel
         
         voice_client = ctx.guild.voice_client
 
         if not voice_client:
-            return await ctx.send("Não estou conectado a um canal de voz.")
+            return await ctx.send(embed=info.InfoEmbed.create(
+                title="⚠️ Aviso",
+                description="Não estou conectado a um canal de voz.")
+            )
 
 
         if not voice_client.is_playing():
-            return await ctx.send("Não há nada tocando")
+            return await ctx.send(embed=info.InfoEmbed.create(
+                title="⚠️ Aviso",
+                description="Não há nada tocando")
+            )
         
         if voice_client.is_paused():
-            return await ctx.send("O áudio já está pausado")
+            return await ctx.send(embed=info.InfoEmbed.create(
+                title="⚠️ Aviso",
+                description="O áudio já está pausado")
+            )
 
         voice_client.pause()
-        return await ctx.send("⏸️ Pausado")
+        return await ctx.send(embed=success.SuccessEmbed.create(
+            title="⏸️ Pausado",
+            description="⏸️ Pausado")
+        )
 
     @commands.command(name="resume", help="Despausa uma música", aliases=["despausar"])
     async def resume(self, ctx):
         if ctx.author.voice is None:
-            return await ctx.send("❌ Você precisa estar conectado em um canal de voz")
+            return await ctx.send(embed=info.InfoEmbed.create(
+                title="⚠️ Aviso",
+                description="Você precisa estar conectado em um canal de voz")
+            )
         
         vc = ctx.author.voice.channel
         
         voice_client = ctx.guild.voice_client
 
         if not voice_client:
-            return await ctx.send("❌ Não estou conectado a um canal de voz")
+            return await ctx.send(embed=info.InfoEmbed.create(
+                title="⚠️ Aviso",
+                description="Não estou conectado a um canal de voz")
+            )
         
         if voice_client.is_playing():
-            return await ctx.send("❌ A música não está pausada.")
+            return await ctx.send(embed=info.InfoEmbed.create(
+                title="⚠️ Aviso",
+                description="A música não está pausada.")
+            )
 
         voice_client.resume()
-        return await ctx.send("▶️ Voltando a reproduzir...")
+        return await ctx.send(embed=success.SuccessEmbed.create(
+            title="▶️ Voltando a reproduzir...",
+            description="▶️ Voltando a reproduzir...")
+        )
 
-    @commands.command(name="skip", aliases=["next", "pular"])
+    @commands.command(name="skip", aliases=["next", "pular"], help="Pula para a próxima música")
     async def skip(self, ctx):
         vc = ctx.guild.voice_client
 
         if not vc or not vc.is_connected():
-            return await ctx.send("❌ Não estou conectado a um canal de voz.")
+            return await ctx.send(embed=info.InfoEmbed.create(
+                title="⚠️ Aviso",
+                description="Não estou conectado a um canal de voz.")
+            )
 
         if not vc.is_playing():
-            return await ctx.send("⚠ Nada está tocando.")
+            return await ctx.send(embed=info.InfoEmbed.create(
+                title="⚠️ Aviso",
+                description="Nada está tocando.")
+            )
 
         vc.stop()
         await ctx.send("⏭ Pulando...")
 
-    @commands.command(name="stop", aliases=["parar", "end"])
+    @commands.command(name="stop", aliases=["parar", "end"], help="Para a música atual")
     async def stop(self, ctx):
         vc = ctx.guild.voice_client
 
         if not vc or not vc.is_connected():
-            return await ctx.send("❌ Não estou conectado a um canal de voz.")
+            return await ctx.send(embed=info.InfoEmbed.create(
+                title="⚠️ Aviso",
+                description="Não estou conectado a um canal de voz.")
+            )
 
         guild_id = ctx.guild.id
 
@@ -172,7 +226,7 @@ class Music(commands.Cog, name="Músicas"):
 
         await ctx.send("🛑 Música parada e fila limpa.")
 
-    @commands.command(name="volume", aliases=["vol"])
+    @commands.command(name="volume", aliases=["vol"], help="Altera o volume")
     async def volume(self, ctx, *, vol: int = None):
         if vol is None:
             guild_volume = self.volume.get(ctx.guild.id, 0.5)
@@ -201,7 +255,7 @@ class Music(commands.Cog, name="Músicas"):
             )
         return await ctx.send(embed=embed)
 
-    @commands.command(name="queue", aliases=["fila"])
+    @commands.command(name="queue", aliases=["fila"], help="Mostra a fila de músicas")
     async def queue(self, ctx, page: int = 1):
         if ctx.guild.id not in self.queues or len(self.queues[ctx.guild.id]) == 0:
             embed = info.InfoEmbed.create(
@@ -218,7 +272,8 @@ class Music(commands.Cog, name="Músicas"):
         description = "\n".join(lines[:15])
         embed = default.DefaultEmbed.create(
             title="🎶 Fila de Reprodução",
-            description=description
+            description=description,
+            footer=f"Página {page}/{(len(queue) + 14) // 15}"
         )
         if len(queue) > 15:
             embed.set_footer(text=f"...e mais {len(queue)-15} músicas.")
