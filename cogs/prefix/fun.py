@@ -3,7 +3,7 @@ import random
 import httpx
 import discord
 from deep_translator import GoogleTranslator
-from embed.default import DefaultEmbed
+from embed.default import DefaultEmbed, InfoEmbed
 from helpers.piadas import piadas
 from discord.ext import commands
 
@@ -87,67 +87,89 @@ class Diversao(commands.Cog, name="Diversão"):
         await ctx.send(f"😂 {pergunta}\n -{resposta}")
 
     @commands.command(name="ship", help="Shippa duas pessoas", aliases=["casal"])
-    async def ship(self, ctx, user1: discord.User, user2: discord.User):
+    async def ship(self, ctx, user1: discord.User, user2: discord.User = None):
+        if user2 is None:
+            membros = [m for m in ctx.guild.members if not m.bot and m.id != user1.id]
+
+            if not membros:
+                return await ctx.send(embed=InfoEmbed.create(title="Shippagem", description="Não encontrei ninguém para shippar! 😂"))
+
+            user2 = random.choice(membros)
+
+
+        if user1.id == user2.id:
+            return await ctx.send(embed=DefaultEmbed.create(title="Shippagem", description="Você não pode shippar alguém com **ele mesmo**! 😂"))
+        
         porcentagem = random.randint(0, 100)
         
-        frases_ruins = [
-            "🚨 Alerta de desastre romântico!",
-            "💀 Isso aqui não tem como dar certo...",
-            "❌ Compatibilidade zero. Zero mesmo.",
-            "🧊 Mais frio que o Alasca.",
-            "🤝 Amigos… e olhe lá."
-        ]
+        frases = {
+            "ruim": [
+                "🚨 Alerta de desastre romântico!",
+                "💀 Isso aqui não tem como dar certo...",
+                "❌ Compatibilidade zero. Zero mesmo.",
+                "🧊 Mais frio que o Alasca.",
+                "🤝 Amigos… e olhe lá.",
+                "🥶 Nem o cupido salva isso."
+            ],
+            "baixa": [
+                "😬 Pode até rolar… mas eu não botaria fé.",
+                "🤔 Talvez com muito esforço… MUITO.",
+                "🧩 Peças quase encaixam, mas falta algo.",
+                "🌧️ O clima não está muito favorável.",
+                "🙃 Ainda não convenceu…",
+                "😕 Hmmm... complicado."
+            ],
+            "media": [
+                "🙂 Não é ruim, mas também não é aquele fogo.",
+                "🫶 As chances são medianas.",
+                "✨ Pode virar algo, quem sabe?",
+                "😌 Nada mal! Pode funcionar.",
+                "🤝 Tem potencial aqui!",
+                "⭐ Um começo promissor!"
+            ],
+            "boa": [
+                "🔥 Tá esquentando isso aí!",
+                "😍 Combinação promissora!",
+                "💞 Eu shippo! Tem química!",
+                "💘 Isso aí tem futuro!",
+                "❤️‍🔥 A chama já está acesa!",
+                "⚡ Clima romântico detectado!"
+            ],
+            "otima": [
+                "💖 ALMAS GÊMEAS DETECTADAS!",
+                "💍 Onde é o casamento? Eu vou!",
+                "❤️ Compatibilidade absurda, isso é destino.",
+                "💘 É o match perfeito!",
+                "🌟 Perfeitos um para o outro!",
+                "🔥 CUPIDO APROVOU ESSA UNIÃO!"
+            ]
+        }
 
-        frases_baixas = [
-            "😬 Pode até rolar… mas eu não botaria fé.",
-            "🤔 Talvez com muito esforço… MUITO.",
-            "🧩 Peças quase encaixam, mas falta algo.",
-            "🌧️ O clima não está muito favorável.",
-            "🙃 Ainda não convenceu…"
-        ]
+        def escolher_frase(p):
+                if p <= 20:
+                    return random.choice(frases["ruim"])
+                elif p <= 40:
+                    return random.choice(frases["baixa"])
+                elif p <= 60:
+                    return random.choice(frases["media"])
+                elif p <= 80:
+                    return random.choice(frases["boa"])
+                else:
+                    return random.choice(frases["otima"])
 
-        frases_medias = [
-            "🙂 Não é ruim, mas também não é aquele fogo.",
-            "🫶 As chances são medianas.",
-            "✨ Pode virar algo, quem sabe?",
-            "😌 Nada mal! Pode funcionar.",
-            "🤝 Tem potencial aqui!"
-        ]
+        frase = escolher_frase(porcentagem)
 
-        frases_boas = [
-            "🔥 Tá esquentando isso aí!",
-            "😍 Combinação promissora!",
-            "💞 Eu shippo! Tem química!",
-            "💘 Isso aí tem futuro!",
-            "❤️‍🔥 A chama já está acesa!"
-        ]
-
-        frases_otimas = [
-            "💖 ALMAS GÊMEAS DETECTADAS!",
-            "💍 Onde é o casamento? Eu vou!",
-            "❤️ Compatibilidade absurda, isso é destino.",
-            "💘 É o match perfeito!",
-            "🌟 Perfeitos um para o outro!"
-        ]
-
-        # Escolhe a frase de acordo com a % de compatibilidade
-        if porcentagem <= 20:
-            frase = random.choice(frases_ruins)
-        elif porcentagem <= 40:
-            frase = random.choice(frases_baixas)
-        elif porcentagem <= 60:
-            frase = random.choice(frases_medias)
-        elif porcentagem <= 80:
-            frase = random.choice(frases_boas)
-        else:
-            frase = random.choice(frases_otimas)
-
+        blocks = 10
+        filled = int(porcentagem / 100) * blocks
+        bar = "█" * filled + "░" * (blocks - filled)
+        formated_bar = f"[{bar}] {porcentagem}%"
         embed = DefaultEmbed.create(
             title="💖 Teste de Compatibilidade",
             description=(
                 f"{user1.mention} ❤️ {user2.mention}\n\n"
                 f"**Compatibilidade:** {porcentagem}%\n"
-                f"**{frase}**"
+                f"{formated_bar}\n\n"
+                f"{frase}"
             )
         )
         await ctx.send(embed=embed)
