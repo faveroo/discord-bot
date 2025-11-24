@@ -18,6 +18,7 @@ client = AsyncIOMotorClient(
 db = client["economy"]
 usuarios = db["usuarios"]
 modlog = db["modlog"]
+auditlog = db["auditlog"]
 reminders = db["reminders"]
 
 # ECONOMIA 
@@ -97,6 +98,21 @@ async def set_modlog(guild_id: int, channel_id: int):
 
 async def get_modlog(guild_id: int):
     data = await modlog.find_one({"guild_id": guild_id})
+    return data["channel_id"] if data else None
+
+
+# AUDITLOG
+
+async def set_auditlog(guild_id: int, channel_id: int):
+    await auditlog.update_one(
+        {"guild_id": guild_id},
+        {"$set": {"channel_id": channel_id}},
+        upsert=True
+    )
+
+
+async def get_auditlog(guild_id: int):
+    data = await auditlog.find_one({"guild_id": guild_id})
     return data["channel_id"] if data else None
 
 
