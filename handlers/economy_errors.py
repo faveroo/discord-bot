@@ -15,7 +15,7 @@ class EconomyError:
     async def InvalidAmount(ctx):
         return await ctx.send(embed=ErrorEmbed.create(
             title="❌ Erro",
-            description="A quantia não pode ser negativa."
+            description="A quantia não pode ser vazia ou negativa."
         ))
     
     @staticmethod
@@ -33,10 +33,23 @@ class EconomyError:
         ))
     
     @staticmethod
-    async def InvalidNumber(ctx, min: int, max: int):
+    async def InvalidNumber(ctx):
         return await ctx.send(embed=ErrorEmbed.create(
             title="❌ Erro",
-            description=f"O número deve estar entre {min} e {max}."
+            description="Ambos devem digitar apenas números!"
+        ))
+
+    @staticmethod
+    async def InvalidNumberRange(ctx, **kwargs):
+        if kwargs.get('equal'):
+            return await ctx.send(embed=ErrorEmbed.create(
+                title="❌ Erro",
+                description="Ambos escolheram o mesmo número! Escolham números diferentes."
+            ))
+        
+        return await ctx.send(embed=ErrorEmbed.create(
+            title="❌ Erro",
+            description=f"O número deve estar entre {kwargs['min']} e {kwargs['max']}."
         ))
     
     @staticmethod
@@ -44,4 +57,29 @@ class EconomyError:
         return await ctx.send(embed=ErrorEmbed.create(
             title="❌ Erro",
             description="Tipo de aposta inválido. Use: red, black, 1-12, 13-24, 25-36, 1-18, 19-36, ou números 0-36."
+        ))
+
+    @staticmethod
+    async def InvalidTransfer(ctx):
+        return await ctx.send(embed=ErrorEmbed.create(
+            title="❌ Erro",
+            description="Você não pode transferir moedas para você mesmo."
+        ))
+
+    @staticmethod
+    async def DailyError(ctx, last_daily: datetime, now: datetime):
+        next_claim = last_daily + timedelta(days=1)
+        time_remaining = next_claim - now
+        hours, remainder = divmod(int(time_remaining.total_seconds()), 3600)
+        minutes, seconds = divmod(remainder, 60)
+        return await ctx.send(embed=ErrorEmbed.create(
+            title="❌ Erro",
+            description=f"Você já resgatou sua recompensa diária. Tente novamente em {hours}h {minutes}m {seconds}s."
+        ))
+    
+    @staticmethod
+    async def Timeout(ctx):
+        return await ctx.send(embed=ErrorEmbed.create(
+            title="❌ Erro",
+            description="Tempo esgotado. A aposta foi cancelada."
         ))
