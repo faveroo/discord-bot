@@ -96,23 +96,15 @@ class Economy(commands.Cog, name="Economia"):
             return await EconomyError.NotFoundUser(ctx)
 
         if member == ctx.author:
-            return await ctx.send(embed=error.ErrorEmbed.create(
-                title="❌ Erro",
-                description="Você não pode transferir moedas para si mesmo."
-            ))
+            return await EconomyError.InvalidTransfer(ctx)
         if amount <= 0:
-            return await ctx.send(embed=error.ErrorEmbed.create(
-                title="❌ Erro",
-                description="A quantia não pode ser negativa."
-            ))
+            return await EconomyError.InvalidAmount(ctx)
         
         from database import get_currency, update_currency
         saldo_atual = await get_currency(ctx.author)
         if saldo_atual < amount:
-            return await ctx.send(embed=error.ErrorEmbed.create(
-                title="❌ Erro",
-                description="Você não tem moedas suficientes para essa transferência."
-            ))
+            return await EconomyError.NotEnoughMoney(ctx)
+        
         await update_currency(ctx.author, -amount)
         await update_currency(member, amount)
 
@@ -146,14 +138,7 @@ class Economy(commands.Cog, name="Economia"):
         now = datetime.now(timezone.utc)
 
         if last_daily and (now - last_daily).days < 1:
-            next_claim = last_daily + timedelta(days=1)
-            time_remaining = next_claim - now
-            hours, remainder = divmod(int(time_remaining.total_seconds()), 3600)
-            minutes, seconds = divmod(remainder, 60)
-            return await ctx.send(embed=error.ErrorEmbed.create(
-                title="❌ Recompensa Diária Já Resgatada",
-                description=f"Você já resgatou sua recompensa diária. Tente novamente em {hours}h {minutes}m {seconds}s."
-            ))
+            return await EconomyError.DailyError(ctx, last_daily, now)
         
         rewards_amount = random.randint(50, 350)
         await update_currency(user, rewards_amount)
@@ -168,35 +153,23 @@ class Economy(commands.Cog, name="Economia"):
     @commands.command(name="bet", help="Aposta com um usuário", aliases=["apostar"])
     async def bet(self, ctx, member: discord.Member = None, value: int = None):
             if member == ctx.author:
-                return await ctx.send(embed=error.ErrorEmbed.create(
-                    title="❌ Erro",
-                    description="Você não pode apostar com você mesmo."
-                ))
+                return await EconomyError.InvalidTransfer(ctx)
                 
             
             if member is None:
                 return await EconomyError.NotFoundUser(ctx)
             
             if value is None or value <= 0:
-                return await ctx.send(embed=error.ErrorEmbed.create(
-                    title="❌ Valor inválido",
-                    description="Use: !bet @usuario 100"
-                ))
+                return await EconomyError.InvalidAmount(ctx)
                 
             user_currency = get_currency(ctx.author)
             enemy_currency = get_currency(member)
             
             if user_currency < value:
-                return await ctx.send(embed=error.ErrorEmbed.create(
-                    title="❌ Erro",
-                    description="Você não possui moedas o suficiente"
-                ))
+                return await EconomyError.NotEnoughMoney(ctx)
                      
             if enemy_currency < value:
-                return await ctx.send(embed=error.ErrorEmbed.create(
-                    title="❌ Erro",
-                    description="O outro usuário não possui moedas o suficiente"
-                ))
+                return await EconomyError.NotEnoughMoneyEnemy(ctx)
             
             await ctx.send(f"{ctx.author.mention} e {member.mention}, escolham um número entre 1 e 100!")
             
@@ -215,7 +188,7 @@ class Economy(commands.Cog, name="Economia"):
             resposta1 = await wait(ctx.author)
 
             if resposta1[1] is None:
-                return await ctx.send(f"❌ {ctx.author.display_name} não respondeu. A aposta foi cancelada.")
+                return await EconomyError.Timeout(ctx)
 
             await ctx.send(f"✔ {ctx.author.display_name} respondeu!\n"
                         f"{member.mention}, agora é sua vez!")
@@ -223,7 +196,7 @@ class Economy(commands.Cog, name="Economia"):
             resposta2 = await wait(member)
 
             if resposta2[1] is None:
-                return await ctx.send(f"❌ {member.display_name} não respondeu. A aposta foi cancelada.")
+                return await EconomyError.Timeout(ctx)
             
             author, escolha1 = resposta1
             alvo, escolha2 = resposta2
@@ -232,13 +205,13 @@ class Economy(commands.Cog, name="Economia"):
                 escolha1 = int(escolha1)
                 escolha2 = int(escolha2)
             except ValueError:
-                return await ctx.send("❌ Ambos devem digitar apenas números!")
+                return await EconomyError.InvalidNumber(ctx)
             
             if not (1 <= escolha1 <= 100 and 1 <= escolha2 <= 100):
-                return await ctx.send("❌ Os números devem estar entre 1 e 100!")
+                return await EconomyError.InvalidNumberRange(ctx, min=1, max=100)
             
             if escolha1 == escolha2:
-                return await ctx.send("❌ Ambos escolheram o mesmo número! Escolham números diferentes.")
+                return await EconomyError.InvalidNumberRange(ctx, equal=True)
 
             players = {
                 escolha1: author,
