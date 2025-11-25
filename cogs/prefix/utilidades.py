@@ -5,6 +5,7 @@ import httpx
 import aiohttp
 import os
 import discord
+from handlers.general_errors import GeneralError
 from zoneinfo import ZoneInfo
 from handlers.economy_errors import EconomyError
 from discord import app_commands
@@ -156,11 +157,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
             
             await ctx.send(embed=embed)
         else:
-            embed = error.ErrorEmbed.create(
-                title="❌ País não encontrado!",
-                description="Verifique se escreveu corretamente."
-            )
-            await ctx.send(embed=embed)
+            await GeneralError.WordNotFound(ctx, "País")
 
     @ver.command(name="moeda", help="Mostra a moeda de um país")
     async def moeda(self, ctx, *, pais: str):
@@ -178,10 +175,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
                 description=f"💰 Moeda: {moeda}\n"
             ))
         else:
-            await ctx.send(embed=error.ErrorEmbed.create(
-                title="❌ Erro",
-                description="País não encontrado! Verifique se escreveu corretamente."
-            ))
+            await GeneralError.WordNotFound(ctx, "País")
 
     @commands.command(name="rps", help="Jogo Pedra, Papel ou Tesoura", aliases=["paperrock", "papelpedra", "rockpaperscissors"])
     async def rps(self, ctx, escolha: str, amount: int = 0):
@@ -241,7 +235,10 @@ class Utilidades(commands.Cog, name="Utilidades"):
         user = await ctx.bot.fetch_user(user.id)
 
         if user.banner is None:
-            return await ctx.send(f"{user.mention} não possui um banner definido!")
+            return await ctx.send(embed=error.ErrorEmbed.create(
+                title="❌ Erro",
+                description="Esse usuário não possui um banner definido!"
+            ))
 
         avatar_banner_url = user.banner.url 
 
@@ -299,7 +296,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
             search_url = f"https://www.dicio.com.br/pesquisa.php?q={quote(palavra)}"
             async with session.get(search_url) as resp:
                 if resp.status == 404:
-                    return await ctx.send(content="❌ Palavra não encontrada.")
+                    return await GeneralError.WordNotFound(ctx, "Palavra")
                 html = await resp.text()
                 
             soup = BeautifulSoup(html, "html.parser")
@@ -308,7 +305,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
             if resultados:
                 first_li = resultados.find("li")
                 if not first_li:
-                    return await ctx.send(content="❌ Palavra não encontrada.")
+                    return await GeneralError.WordNotFound(ctx, "Palavra")
                 link = first_li.find("a", class_="_sugg")["href"]
                 
                 async with session.get("https://www.dicio.com.br" + link) as resp:
@@ -317,7 +314,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
                 
             description = soup.select_one("p.significado")
             if description is None or description.text.startswith("Ainda não temos o significado"):
-                return await ctx.send(content="❌ Palavra não encontrada.")
+                return await GeneralError.WordNotFound(ctx, "Palavra")
 
             h1 = soup.find("h1")
             word_title = "".join(h1.find_all(string=True, recursive=False)).strip()
@@ -339,10 +336,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
     async def local(self, ctx):
         """Comandos para definir, ver ou excluir o local"""
         if ctx.invoked_subcommand is None:
-            await ctx.send(embed=error.ErrorEmbed.create(
-                title="❌ Erro",
-                description="Digite `!help local` para saber mais!"
-            ))
+            await ctx.send(embed=GeneralError.SubCommandNotFound(ctx, "local"))
 
     @local.command(name="set", help="Define sua cidade/localização para comandos futuros")
     async def set_local(self, ctx, *, cidade: str):
@@ -395,21 +389,12 @@ class Utilidades(commands.Cog, name="Utilidades"):
                 resp.raise_for_status()
                 geo_data = resp.json()
             except httpx.HTTPStatusError:
-                return await ctx.send(embed=error.ErrorEmbed.create(
-                    title="❌ Erro",
-                    description=f"Não foi possível encontrar informações para **{local}**."
-                ))
+                return await GeneralError.WordNotFound(ctx, "local")
             except Exception as e:
-                return await ctx.send(embed=error.ErrorEmbed.create(
-                    title="❌ Erro",
-                    description=f"Erro ao consultar o clima: {e}"
-                ))
+                return await GeneralError.ApiError(ctx)
             
             if not geo_data:
-                return await ctx.send(embed=error.ErrorEmbed.create(
-                    title="❌ Erro",
-                    description=f"Cidade **{local}** não encontrada."
-                ))
+                return await GeneralError.WordNotFound(ctx, "local")
         
             lat = geo_data[0]['lat']
             lon = geo_data[0]['lon']
@@ -421,10 +406,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
                 weather_resp.raise_for_status()
                 weather_data = weather_resp.json()
             except Exception as e:
-                return await ctx.send(embed=error.ErrorEmbed.create(
-                    title="❌ Erro",
-                    description=f"Erro ao buscar clima: {e}"
-                ))
+                return await GeneralError.ApiError(ctx)
 
         cidade_nome = weather_data["name"]
         pais = weather_data["sys"]["country"]
@@ -469,20 +451,13 @@ class Utilidades(commands.Cog, name="Utilidades"):
             dados = r.json()
             print("DEBUG:", dados)
         except Exception:
-            embed = error.ErrorEmbed.create(
-                title="❌ Erro ao acessar a API",
-                description=f"Foi retornada uma resposta inválida.\n\nStatus: {r.status_code}"
-            )
-            return await ctx.send(embed=embed)
+            return await GeneralError.ApiError(ctx)
 
         embeds = []
         for moeda in moedas:
             key = f"{moeda}BRL"
             if key not in dados:
-                embed = error.ErrorEmbed.create(
-                    title="❌ Moeda não encontrada",
-                    description=f"A moeda **{moeda}** não existe ou não foi encontrada.",
-                )
+                embed = await GeneralError.WordNotFound(ctx, moeda)
                 embeds.append(embed)
                 continue
             
@@ -573,9 +548,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
         doc = await find_reminder_by_prefix(ctx.author.id, reminder_prefix)
 
         if not doc:
-            return await ctx.send(embed=error.ErrorEmbed.create(
-                title="❌ Lembrete não encontrado"
-            ))
+            return await GeneralError.WordNotFound(ctx, "lembrete")
 
         await edit_reminder_message(doc["_id"], new_message)
     
@@ -588,9 +561,7 @@ class Utilidades(commands.Cog, name="Utilidades"):
         """Remove um lembrete"""
         doc = await find_reminder_by_prefix(ctx.author.id, reminder_prefix)
         if not doc:
-            return await ctx.send(embed=error.ErrorEmbed.create(
-                title="❌ Lembrete não encontrado"
-            ))
+            return await GeneralError.WordNotFound(ctx, "lembrete")
 
         t = self._tasks.pop(str(doc["_id"]), None)
         if t:
