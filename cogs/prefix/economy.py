@@ -244,7 +244,7 @@ class Economy(commands.Cog, name="Economia"):
         await update_currency(ctx.author, -amount)
 
         result = random.randint(0, 36)
-        color = "red" if result in RED_NUMBERS else "black" if result in BLACK_NUMBERS else "green"
+        color = "red" if result in RED_NUMBERS else "black" if result in BLACK_NUMBERS else "white"
 
         bet_category, value = parsed
 
