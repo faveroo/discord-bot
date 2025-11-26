@@ -289,48 +289,38 @@ class Utilidades(commands.Cog, name="Utilidades"):
 
         await ctx.send(embed=embed)
 
+    @commands.command(name="dictionary", help="Mostra o significado de uma palavra", aliases=["dicionario", "search", "dicio"])
+    async def dictionary(self, ctx, *, palavra: str):
+        import google.generativeai as genai
 
-    @commands.command(name="dicio", help="Mostra o significado de uma palavra", aliases=["dicionario", "search"])
-    async def dicio(self, ctx, *, palavra: str):
-        async with aiohttp.ClientSession() as session:
-            search_url = f"https://www.dicio.com.br/pesquisa.php?q={quote(palavra)}"
-            async with session.get(search_url) as resp:
-                if resp.status == 404:
-                    return await GeneralError.WordNotFound(ctx, "Palavra")
-                html = await resp.text()
-                
-            soup = BeautifulSoup(html, "html.parser")
-            
-            resultados = soup.find("ul", class_="resultados")
-            if resultados:
-                first_li = resultados.find("li")
-                if not first_li:
-                    return await GeneralError.WordNotFound(ctx, "Palavra")
-                link = first_li.find("a", class_="_sugg")["href"]
-                
-                async with session.get("https://www.dicio.com.br" + link) as resp:
-                    html = await resp.text()
-                soup = BeautifulSoup(html, "html.parser")
-                
-            description = soup.select_one("p.significado")
-            if description is None or description.text.startswith("Ainda não temos o significado"):
-                return await GeneralError.WordNotFound(ctx, "Palavra")
+        genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+        model = genai.GenerativeModel("gemini-2.5-flash")
+        prompt = f"""
+                Explique o significado da palavra "{palavra}", caso a palavra esteja escrita errada corrija-a e retorne **somente** um JSON no formato:
 
-            h1 = soup.find("h1")
-            word_title = "".join(h1.find_all(string=True, recursive=False)).strip()
-            spans = description.find_all("span")
-            significado = spans[1].text if len(spans) >= 2 else description.text
+                {{
+                "title": "{palavra}",
+                "description": "explicação simples aqui"
+                }}
 
-            frase_tag = soup.find(class_="frase")
-            frase = frase_tag.text.strip() if frase_tag else "Nenhum exemplo encontrado."
+                Sem comentários, sem markdown, sem rodeios — apenas o JSON.
+                """
 
-            embed = default.DefaultEmbed.create(
-                title=f"📘 Definição de {word_title.capitalize()}",
-                description=f"{significado}",
-            )
-            embed.add_field(name="Exemplo: ", value=frase, inline=True)
+        response = model.generate_content(prompt)
+        text = getattr(response, "text", None)
+        print(text)
+        try:
+            data = json.loads(text)
+        except Exception:
+            return await ctx.send("❌ Não consegui entender a resposta do modelo. Tente novamente.")
 
-            await ctx.send(embed=embed)
+        title = data.get("title", palavra)
+        description = data.get("description", "Sem descrição disponível.")
+
+        embed = default.DefaultEmbed.create(title=f"Significado de {title}")
+        embed.add_field(name="Significado", value=description)
+
+        await ctx.send(embed=embed)
 
     @commands.group(help="Grupo com relação comandos local", hidden=True)
     async def local(self, ctx):
