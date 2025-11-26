@@ -1,6 +1,8 @@
 import discord
 import os
 import asyncio
+from discord.utils import utcnow, snowflake_time
+import time
 from custom.CustomHelp import CustomHelp
 from database import is_user_banned
 from handlers.global_errors import setup_global_error_handler
@@ -91,7 +93,24 @@ async def on_ready():
 # ------------------------------------------------
 @bot.tree.command(name="ping", description="Responde com Pong!")
 async def ping(interaction: discord.Interaction):
-    await interaction.response.send_message("🏓 Pong!")
+    t1 = snowflake_time(interaction.id)
+    msg = await interaction.response.send_message("Calculando...", ephemeral=False)
+    msg = await interaction.original_response()
+    t2 = snowflake_time(msg.id)
+
+    # print("t1:", t1)
+    # print("t2:", t2)
+    # print((t2 - t1))
+    # print((t2 - t1).total_seconds())
+    delay = (t2 - t1).total_seconds() * 1000
+
+    await interaction.edit_original_response(
+        content=(
+            f"🏓 Pong!\n"
+            f"Latência API: `{round(bot.latency * 1000)} ms`\n"
+            f"Latência Slash (invocação → resposta): `{round(delay)} ms`"
+        )
+    )
 
 # ------------------------------------------------
 # Inicia o bot
