@@ -1,4 +1,5 @@
 from embed.error import *
+from datetime import datetime, timedelta
 
 class EconomyError:
     @staticmethod
@@ -37,6 +38,13 @@ class EconomyError:
         ))
 
     @staticmethod
+    async def InvalidBetTarget(ctx):
+        return await ctx.send(embed=ErrorEmbed.create(
+            title="❌ Erro",
+            description="Você não pode apostar em você mesmo."
+        ))
+
+    @staticmethod
     async def InvalidNumberRange(ctx, **kwargs):
         if kwargs.get('equal'):
             return await ctx.send(embed=ErrorEmbed.create(
@@ -53,7 +61,7 @@ class EconomyError:
     async def InvalidBetType(ctx):
         return await ctx.send(embed=ErrorEmbed.create(
             title="❌ Erro",
-            description="Tipo de aposta inválido. Use: red, black, 1-12, 13-24, 25-36, 1-18, 19-36, ou números 0-36."
+            description="Tipo de aposta inválido."
         ))
 
     @staticmethod
