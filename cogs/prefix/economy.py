@@ -153,7 +153,7 @@ class Economy(commands.Cog, name="Economia"):
     @commands.command(name="bet", help="Aposta com um usuário", aliases=["apostar"])
     async def bet(self, ctx, member: discord.Member = None, value: int = None):
             if member == ctx.author:
-                return await EconomyError.InvalidTransfer(ctx)
+                return await EconomyError.InvalidBetTarget(ctx)
                 
             
             if member is None:
@@ -162,8 +162,8 @@ class Economy(commands.Cog, name="Economia"):
             if value is None or value <= 0:
                 return await EconomyError.InvalidAmount(ctx)
                 
-            user_currency = get_currency(ctx.author)
-            enemy_currency = get_currency(member)
+            user_currency = await get_currency(ctx.author)
+            enemy_currency = await get_currency(member)
             
             if user_currency < value:
                 return await EconomyError.NotEnoughMoney(ctx)
@@ -276,7 +276,6 @@ class Economy(commands.Cog, name="Economia"):
                     win = True
                     multiplier = 2
 
-        # Resultado da aposta
         if win:
             prize = amount * multiplier
             await update_currency(ctx.author, prize)
@@ -291,6 +290,37 @@ class Economy(commands.Cog, name="Economia"):
                 description=f"🎰 Resultado: **{result} ({color})**\n"
                 f"💀 Você perdeu **{amount} moedas!**"
             ))
+
+    @commands.command(name="headsortails", help="Jogo de cara ou coroa", aliases=['caraoucoroa', 'hot'])
+    async def headsortails(self, ctx, c: str, amount: int):
+        if amount <= 0:
+            return await EconomyError.InvalidAmount(ctx)
+        
+        if c.lower() not in ["cara", "coroa"]:
+            return await EconomyError.InvalidBetType(ctx)
+
+        user_currency = await get_currency(ctx.author)
+        if user_currency < amount:
+            return await EconomyError.NotEnoughMoney(ctx)
+        
+        await update_currency(ctx.author, -amount)
+        
+        result = random.choice(["cara", "coroa"])
+        if result == c.lower():
+            await update_currency(ctx.author, amount * 2)
+            await ctx.send(embed=success.SuccessEmbed.create(
+                title="✅ Cara ou Coroa Finalizado!",
+                description=f"🎲 Resultado: **{result}**\n"
+                f"🎉 Você ganhou **{amount * 2} moedas!**"
+            ))
+        else:
+            await ctx.send(embed=error.ErrorEmbed.create(
+                title="❌ Cara ou Coroa Finalizado!",
+                description=f"🎲 Resultado: **{result}**\n"
+                f"💀 Você perdeu **{amount} moedas!**"
+            ))
+        
+
 
 async def setup(bot):
     await bot.add_cog(Economy(bot))
