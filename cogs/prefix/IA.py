@@ -23,8 +23,12 @@ class IA(commands.Cog, name="IA"):
             return await GeneralError.MissingArgument(ctx, "prompt")
         
         prompt = (
-            prompt 
-            + ". Gere a imagem de forma segura, evitando conteúdo explícito, violento ou inapropriado."
+            f"{prompt}\n\n"
+            "Se o pedido do usuário contiver ou insinuar algo proibido, sexual, violento, ofensivo, "
+            "ilegal, chocante, sensível, perigoso ou que viole políticas, então REINTERPRETE o pedido "
+            "e gere uma imagem segura, criativa e apropriada para todas as idades, mantendo a essência "
+            "do tema de forma leve e respeitosa.\n\n"
+            "Nunca recuse. Nunca descreva a recusa. Apenas gere uma alternativa segura.\n"
         )
 
         try:
