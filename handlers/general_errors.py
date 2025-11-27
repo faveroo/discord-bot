@@ -9,10 +9,10 @@ class GeneralError:
         ))
     
     @staticmethod
-    async def SubCommandNotFound(ctx, command: str):
+    async def SubCommandNotFound(ctx):
         return await ctx.send(embed=ErrorEmbed.create(
             title="❌ Erro",
-            description=f"Subcomando não encontrado. Use `!help {command}` para ver os subcomandos."
+            description=f"Subcomando não encontrado. Use `!help {ctx.invoked_with}` para ver os subcomandos."
         ))
 
     @staticmethod
@@ -20,4 +20,11 @@ class GeneralError:
         return await ctx.send(embed=ErrorEmbed.create(
             title="❌ Erro",
             description=f"Erro na API. Tente novamente mais tarde."
+        ))
+
+    @staticmethod
+    async def MissingArgument(ctx, argument: str):
+        return await ctx.send(embed=ErrorEmbed.create(
+            title="❌ Erro",
+            description=f"Argumento `{argument}` não fornecido. Use `!help {ctx.invoked_with}` para ver os argumentos."
         ))
