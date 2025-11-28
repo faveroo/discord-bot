@@ -28,7 +28,8 @@ COGS = [
     'cogs.prefix.owner',
     'cogs.prefix.utilidades',
     'cogs.slash.utilidades',
-    'cogs.prefix.voiceTTS'
+    'cogs.prefix.voiceTTS',
+    'cogs.prefix.IA'
 ]
 
 intents = discord.Intents.default()

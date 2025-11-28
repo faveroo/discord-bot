@@ -45,7 +45,7 @@ class Games(commands.Cog, name="Jogos"):
                 if normalize(msg.content) == normalize(capital):
                     from database import update_currency 
                     await update_currency(msg.author, 50)
-                    await ctx.send( embed=success.SuccessEmbed.create(title=f"🎉 Parabéns {msg.author.mention}! **{capital}** está correto! +50 Moedas"))
+                    await ctx.send( embed=success.SuccessEmbed.create(title=f"🎉 Parabéns {msg.author}! **{capital}** está correto! +50 Moedas"))
                     break
                     
         except asyncio.TimeoutError:
